@@ -2,13 +2,16 @@ package entity;
 
 import jakarta.persistence.*;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Table(name = "cliente")
-public class Cliente {
+@Table(name = "usuario")
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,18 +22,40 @@ public class Cliente {
     private String telefone;
 
     /* Relação com Estadia. */
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Estadia> estadias = new HashSet<>();
 
-    public Cliente() {
-    }
+    /* Relação com as roles. */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_role",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
-    public Cliente(String nome, String email, String senha, String login, String telefone) {
+    public Usuario() {}
+
+    public Usuario(String nome, String email, String senha, String login, String telefone) {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
         this.login = login;
         this.telefone = telefone;
+    }
+
+    public Usuario (Usuario entity) {
+        this.id = entity.getId();
+        this.nome = entity.getNome();
+        this.email = entity.getEmail();
+        this.senha = entity.getSenha();
+        this.login = entity.getLogin();
+        this.telefone = entity.getTelefone();
+    }
+
+    public Usuario (Usuario usuario, Set<Role> roles) {
+        this(usuario);
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -61,8 +86,18 @@ public class Cliente {
         return senha;
     }
 
+    @Override
+    public String getPassword() {
+        return senha;
+    }
+
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return login;
     }
 
     public String getLogin() {
@@ -90,6 +125,31 @@ public class Cliente {
     }
 
     @Override
+    public Collection<? extends GrantedAuthority> getAuthorities () {
+        return roles;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void addRole (Role role) {
+        this.roles.add(role);
+    }
+
+    public boolean hasRole (String roleName) {
+        return !roles
+                .stream()
+                .filter(r -> r.getAuthority().equals(roleName))
+                .toList()
+                .isEmpty();
+    }
+
+    @Override
     public String toString() {
         return "Cliente{" +
                 "id=" + id +
@@ -104,8 +164,8 @@ public class Cliente {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Cliente cliente)) return false;
-        return Objects.equals(getId(), cliente.getId());
+        if (!(o instanceof Usuario usuario)) return false;
+        return Objects.equals(getId(), usuario.getId());
     }
 
     @Override

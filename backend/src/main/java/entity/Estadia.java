@@ -14,7 +14,7 @@ public class Estadia {
     /* FK para Cliente. */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "cliente_id", nullable = false)
-    private Cliente cliente;
+    private Usuario usuario;
 
     /* FK para Quarto. */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -27,8 +27,8 @@ public class Estadia {
     public Estadia() {
     }
 
-    public Estadia(Cliente cliente, Quarto quarto, LocalDate dataEntrada) {
-        this.cliente = cliente;
+    public Estadia(Usuario usuario, Quarto quarto, LocalDate dataEntrada) {
+        this.usuario = usuario;
         this.quarto = quarto;
         this.dataEntrada = dataEntrada;
         this.setDataSaida(dataEntrada);
@@ -42,12 +42,12 @@ public class Estadia {
         this.id = id;
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    public Usuario getCliente() {
+        return usuario;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setCliente(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public Quarto getQuarto() {

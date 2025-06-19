@@ -16,8 +16,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Usuario findByEmailAndSenha (String email, String senha);
 
     @Query(nativeQuery = true, value = """
-        SELECT u.login as username,
-               u.senha,
+        SELECT u.login AS username,
+               u.senha AS password,
                r.id as roleId,
                r.authority
         FROM usuario u

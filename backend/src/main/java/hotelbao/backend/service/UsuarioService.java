@@ -13,31 +13,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.userdetails.UserDetailsService;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-//import projection.UserDetailsProjection;
+import hotelbao.backend.projection.UserDetailsProjection;
 import hotelbao.backend.repository.RoleRepository;
 import hotelbao.backend.repository.UsuarioRepository;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioService /*implements UserDetailsService*/ {
+public class UsuarioService implements UserDetailsService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
     private RoleRepository roleRepository;
 
-//    @Autowired
-//    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public Page<UsuarioDTO> findAll (Pageable pageable) {
@@ -64,8 +65,8 @@ public class UsuarioService /*implements UserDetailsService*/ {
     public UsuarioDTO insert (UsuarioInsertDTO dto) {
         Usuario entity = new Usuario();
         this.copiarDTOParaEntidade(dto, entity);
-        //entity.setSenha(passwordEncoder.encode(dto.getSenha()));
-        entity.setSenha(dto.getSenha());
+        entity.setSenha(passwordEncoder.encode(dto.getSenha()));
+        //entity.setSenha(dto.getSenha());
         Usuario novo = usuarioRepository.save(entity);
         return new UsuarioDTO(novo)
                 .add(linkTo(methodOn(UsuarioResource.class).findById(entity.getId())).withRel("Encontrar usuário por ID"))
@@ -79,8 +80,8 @@ public class UsuarioService /*implements UserDetailsService*/ {
         try {
             Usuario entity = usuarioRepository.getReferenceById(id);
             this.copiarDTOParaEntidade(dto, entity);
-            //entity.setSenha(passwordEncoder.encode(dto.getSenha()));
-            entity.setSenha(dto.getSenha());
+            entity.setSenha(passwordEncoder.encode(dto.getSenha()));
+            //entity.setSenha(dto.getSenha());
             entity = usuarioRepository.save(entity);
             return new UsuarioDTO(entity)
                     .add(linkTo(methodOn(UsuarioResource.class).findById(dto.getId())).withRel("Encontrar usuário por ID"))
@@ -106,23 +107,39 @@ public class UsuarioService /*implements UserDetailsService*/ {
         }
     }
 
-//    @Override
-//    public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
-//        List<UserDetailsProjection> result = usuarioRepository.findUserAndRoleByLogin(username);
-//
-//        if (result.isEmpty()) {
-//            throw new UsernameNotFoundException("Usuário não encontrado: " + username);
-//        }
-//
-//        Usuario usuario = new Usuario();
-//        usuario.setLogin(result.get(0).getUsername());
-//        usuario.setSenha(result.get(0).getPassword());
-//        for (UserDetailsProjection p : result) {
-//            usuario.addRole(new Role(p.getRoleId(), p.getAuthority()));
-//        }
-//
-//        return usuario;
-//    }
+    @Override
+    public UserDetails loadUserByUsername (String username) throws UsernameNotFoundException {
+        List<UserDetailsProjection> result = usuarioRepository.findUserAndRoleByLogin(username);
+
+        if (result.isEmpty()) {
+            throw new UsernameNotFoundException("Usuário não encontrado: " + username);
+        }
+
+        Usuario usuario = new Usuario();
+        usuario.setLogin(result.get(0).getUsername());
+        usuario.setSenha(result.get(0).getPassword());
+        for (UserDetailsProjection p : result) {
+            usuario.addRole(new Role(p.getRoleId(), p.getAuthority()));
+        }
+
+        System.out.println(usuario);
+
+        return usuario;
+    }
+
+    public UsuarioDTO signUp (UsuarioInsertDTO dto) {
+        Usuario entity = new Usuario();
+        this.copiarDTOParaEntidade(dto, entity);
+
+        Role role = roleRepository.findByAuthority("ROLE_CLIENTE"); // Papel: cliente
+
+        entity.getRoles().clear();
+        entity.getRoles().add(role);
+        entity.setSenha(passwordEncoder.encode(dto.getTelefone())); // Senha padrão: telefone
+
+        Usuario novo = usuarioRepository.save(entity);
+        return new UsuarioDTO(novo);
+    }
 
 
     private void copiarDTOParaEntidade (UsuarioDTO dto, Usuario entity) {

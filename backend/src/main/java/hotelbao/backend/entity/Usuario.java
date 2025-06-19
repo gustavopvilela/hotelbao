@@ -2,15 +2,16 @@ package hotelbao.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "usuario")
-public class Usuario /* implements UserDetails */ {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -85,7 +86,7 @@ public class Usuario /* implements UserDetails */ {
         return senha;
     }
 
-    //@Override
+    @Override
     public String getPassword() {
         return senha;
     }
@@ -94,7 +95,7 @@ public class Usuario /* implements UserDetails */ {
         this.senha = senha;
     }
 
-    //@Override
+    @Override
     public String getUsername() {
         return login;
     }
@@ -123,10 +124,10 @@ public class Usuario /* implements UserDetails */ {
         this.estadias = estadias;
     }
 
-    //@Override
-//    public Collection<? extends GrantedAuthority> getAuthorities () {
-//        return roles;
-//    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities () {
+        return roles;
+    }
 
     public Set<Role> getRoles() {
         return roles;
@@ -150,7 +151,7 @@ public class Usuario /* implements UserDetails */ {
 
     @Override
     public String toString() {
-        return "Cliente{" +
+        return "Usuario{" +
                 "id=" + id +
                 ", nome='" + nome + '\'' +
                 ", email='" + email + '\'' +
@@ -158,6 +159,7 @@ public class Usuario /* implements UserDetails */ {
                 ", login='" + login + '\'' +
                 ", telefone='" + telefone + '\'' +
                 ", estadias=" + estadias +
+                ", roles=" + roles +
                 '}';
     }
 

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import hotelbao.backend.service.UsuarioService;
@@ -31,6 +32,7 @@ public class UsuarioResource {
             @ApiResponse(description = "OK", responseCode = "200")
         }
     )
+    //@PreAuthorize(value = "hasAnyAuthority('ADMIN', 'USER')")
     public ResponseEntity<Page<UsuarioDTO>> findAll (Pageable pageable) {
         Page<UsuarioDTO> usuarios = usuarioService.findAll(pageable);
         return ResponseEntity.ok().body(usuarios);
@@ -45,6 +47,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Not found", responseCode = "404")
         }
     )
+    @PreAuthorize(value = "hasAnyAuthority('ADMIN')")
     public ResponseEntity<UsuarioDTO> findById (@PathVariable Long id) {
         UsuarioDTO usuario = usuarioService.findById(id);
         return ResponseEntity.ok().body(usuario);
@@ -61,6 +64,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Forbidden", responseCode = "403")
         }
     )
+    //@PreAuthorize(value = "hasAnyAuthority('ADMIN')")
     public ResponseEntity<UsuarioDTO> insert (@Valid @RequestBody UsuarioInsertDTO dto) {
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -84,6 +88,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Not found", responseCode = "404")
         }
     )
+    @PreAuthorize(value = "hasAnyAuthority('ADMIN')")
     public ResponseEntity<UsuarioDTO> update (@PathVariable Long id, @Valid @RequestBody UsuarioInsertDTO dto) {
         UsuarioDTO usuario = usuarioService.update(id, dto);
         return ResponseEntity.ok().body(usuario);
@@ -101,8 +106,31 @@ public class UsuarioResource {
             @ApiResponse(description = "Not found", responseCode = "404")
         }
     )
+    @PreAuthorize(value = "hasAnyAuthority('ADMIN')")
     public ResponseEntity<Void> delete (@PathVariable Long id) {
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/signup", produces = "application/json")
+    @Operation(
+        description = "Criar uma nova conta de cliente",
+        summary = "Criar nova conta",
+        responses = {
+            @ApiResponse(description = "Created", responseCode = "201"),
+            @ApiResponse(description = "Bad Request", responseCode = "400"),
+            @ApiResponse(description = "Unauthorized", responseCode = "401"),
+            @ApiResponse(description = "Forbidden", responseCode = "403")
+        }
+    )
+    public ResponseEntity<UsuarioDTO> signUp (@Valid @RequestBody UsuarioInsertDTO dto) {
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.getId())
+                .toUri();
+
+        UsuarioDTO usuario = usuarioService.signUp(dto);
+        return ResponseEntity.created(uri).body(usuario);
     }
 }

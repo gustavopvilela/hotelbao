@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class UsuarioInsertDTO extends UsuarioDTO {
-    @Size(min = 8, max = 64)
+    @Size(min = 2, max = 64)
     private String senha;
 
     public UsuarioInsertDTO () {

@@ -32,7 +32,7 @@ public class UsuarioResource {
             @ApiResponse(description = "OK", responseCode = "200")
         }
     )
-    //@PreAuthorize(value = "hasAnyAuthority('ADMIN', 'USER')")
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Page<UsuarioDTO>> findAll (Pageable pageable) {
         Page<UsuarioDTO> usuarios = usuarioService.findAll(pageable);
         return ResponseEntity.ok().body(usuarios);
@@ -47,7 +47,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Not found", responseCode = "404")
         }
     )
-    @PreAuthorize(value = "hasAnyAuthority('ADMIN')")
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<UsuarioDTO> findById (@PathVariable Long id) {
         UsuarioDTO usuario = usuarioService.findById(id);
         return ResponseEntity.ok().body(usuario);
@@ -64,7 +64,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Forbidden", responseCode = "403")
         }
     )
-    //@PreAuthorize(value = "hasAnyAuthority('ADMIN')")
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<UsuarioDTO> insert (@Valid @RequestBody UsuarioInsertDTO dto) {
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -88,7 +88,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Not found", responseCode = "404")
         }
     )
-    @PreAuthorize(value = "hasAnyAuthority('ADMIN')")
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENTE')")
     public ResponseEntity<UsuarioDTO> update (@PathVariable Long id, @Valid @RequestBody UsuarioInsertDTO dto) {
         UsuarioDTO usuario = usuarioService.update(id, dto);
         return ResponseEntity.ok().body(usuario);
@@ -106,7 +106,7 @@ public class UsuarioResource {
             @ApiResponse(description = "Not found", responseCode = "404")
         }
     )
-    @PreAuthorize(value = "hasAnyAuthority('ADMIN')")
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<Void> delete (@PathVariable Long id) {
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();

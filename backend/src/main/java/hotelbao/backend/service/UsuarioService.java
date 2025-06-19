@@ -7,6 +7,7 @@ import hotelbao.backend.entity.Role;
 import hotelbao.backend.entity.Usuario;
 import hotelbao.backend.exceptions.DatabaseException;
 import hotelbao.backend.exceptions.ResourceNotFound;
+import hotelbao.backend.resource.UsuarioResource;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 //import projection.UserDetailsProjection;
 import hotelbao.backend.repository.RoleRepository;
 import hotelbao.backend.repository.UsuarioRepository;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.Optional;
 
@@ -38,14 +42,22 @@ public class UsuarioService /*implements UserDetailsService*/ {
     @Transactional(readOnly = true)
     public Page<UsuarioDTO> findAll (Pageable pageable) {
         Page<Usuario> list = usuarioRepository.findAll(pageable);
-        return list.map(UsuarioDTO::new);
+        return list.map(
+                u -> new UsuarioDTO(u)
+                .add(linkTo(methodOn(UsuarioResource.class).findAll(null)).withSelfRel())
+                .add(linkTo(methodOn(UsuarioResource.class).findById(u.getId())).withRel("Informações do usuário"))
+        );
     }
 
     @Transactional(readOnly = true)
     public UsuarioDTO findById (Long id) {
         Optional<Usuario> opt = usuarioRepository.findById(id);
         Usuario usuario = opt.orElseThrow(() -> new ResourceNotFound("Usuário não encontrado"));
-        return new UsuarioDTO(usuario);
+        return new UsuarioDTO(usuario)
+                .add(linkTo(methodOn(UsuarioResource.class).findById(usuario.getId())).withSelfRel())
+                .add(linkTo(methodOn(UsuarioResource.class).findAll(null)).withRel("Todos os usuários"))
+                .add(linkTo(methodOn(UsuarioResource.class).update(usuario.getId(), null)).withRel("Atualizar usuário"))
+                .add(linkTo(methodOn(UsuarioResource.class).delete(usuario.getId())).withRel("Deletar usuário"));
     }
 
     @Transactional
@@ -55,7 +67,11 @@ public class UsuarioService /*implements UserDetailsService*/ {
         //entity.setSenha(passwordEncoder.encode(dto.getSenha()));
         entity.setSenha(dto.getSenha());
         Usuario novo = usuarioRepository.save(entity);
-        return new UsuarioDTO(novo);
+        return new UsuarioDTO(novo)
+                .add(linkTo(methodOn(UsuarioResource.class).findById(entity.getId())).withRel("Encontrar usuário por ID"))
+                .add(linkTo(methodOn(UsuarioResource.class).findAll(null)).withRel("Todos os usuários"))
+                .add(linkTo(methodOn(UsuarioResource.class).update(entity.getId(), null)).withRel("Atualizar usuário"))
+                .add(linkTo(methodOn(UsuarioResource.class).delete(entity.getId())).withRel("Deletar usuário"));
     }
 
     @Transactional
@@ -66,7 +82,10 @@ public class UsuarioService /*implements UserDetailsService*/ {
             //entity.setSenha(passwordEncoder.encode(dto.getSenha()));
             entity.setSenha(dto.getSenha());
             entity = usuarioRepository.save(entity);
-            return new UsuarioDTO(entity);
+            return new UsuarioDTO(entity)
+                    .add(linkTo(methodOn(UsuarioResource.class).findById(dto.getId())).withRel("Encontrar usuário por ID"))
+                    .add(linkTo(methodOn(UsuarioResource.class).findAll(null)).withRel("Todos os usuários"))
+                    .add(linkTo(methodOn(UsuarioResource.class).delete(dto.getId())).withRel("Deletar usuário"));
         }
         catch (EntityNotFoundException ex) {
             throw new ResourceNotFound("Usuário não encontrado: ID" + id);

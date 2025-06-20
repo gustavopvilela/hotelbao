@@ -16,6 +16,7 @@ public class UsuarioDTO extends RepresentationModel<UsuarioDTO> {
     private String email;
     @NotBlank(message = "Campo obrigatório.")
     private String login;
+    @NotBlank(message = "Campo obrigatório")
     private String telefone;
     private Set<RoleDTO> roles = new HashSet<>();
 

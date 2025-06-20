@@ -141,6 +141,16 @@ public class UsuarioService implements UserDetailsService {
         return new UsuarioDTO(novo);
     }
 
+    @Transactional
+    public Page<UsuarioDTO> findAllClients (Pageable pageable) {
+        Page<Usuario> list = usuarioRepository.findAllClients(pageable);
+        return list.map(
+                u -> new UsuarioDTO(u)
+                        .add(linkTo(methodOn(UsuarioResource.class).findAllClients(null)).withSelfRel())
+                        .add(linkTo(methodOn(UsuarioResource.class).findById(u.getId())).withRel("Informações do cliente"))
+        );
+    }
+
 
     private void copiarDTOParaEntidade (UsuarioDTO dto, Usuario entity) {
         entity.setNome(dto.getNome());

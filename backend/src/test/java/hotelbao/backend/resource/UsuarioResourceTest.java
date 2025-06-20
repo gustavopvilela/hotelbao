@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.*;
@@ -26,6 +27,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(UsuarioResource.class)
 public class UsuarioResourceTest {
@@ -65,6 +68,7 @@ public class UsuarioResourceTest {
     }
 
     @Test
+    @WithMockUser(username = "teste", roles = {"ADMIN"})
     @DisplayName("GET /usuario - Deve retornar uma lista paginada de usuários com status 200")
     void findAllShouldReturnPagedUsers () throws Exception {
         Page<UsuarioDTO> page = new PageImpl<>(Collections.singletonList(usuarioDTO), PageRequest.of(0, 10), 1);
@@ -82,6 +86,7 @@ public class UsuarioResourceTest {
     }
 
     @Test
+    @WithMockUser(username = "teste", roles = {"ADMIN"})
     @DisplayName("GET /usuario/{id} - Deve retornar um usuário existente com status 200")
     void findByIdShouldReturnUserWhenExists () throws Exception {
         when(usuarioService.findById(any())).thenReturn(usuarioDTO);
@@ -96,6 +101,7 @@ public class UsuarioResourceTest {
     }
 
     @Test
+    @WithMockUser(username = "teste", roles = {"ADMIN"})
     @DisplayName("POST /usuario -  Deve criar usuário e retornar status 201 com o body sendo o usuário criado")
     void insertShouldReturnCreatedUser () throws Exception {
         when(usuarioService.insert(any(UsuarioInsertDTO.class))).thenReturn(usuarioDTO);
@@ -104,6 +110,7 @@ public class UsuarioResourceTest {
 
         mockMvc.perform(
                 post("/usuario")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated())
@@ -113,6 +120,7 @@ public class UsuarioResourceTest {
     }
 
     @Test
+    @WithMockUser(username = "teste", roles = {"ADMIN"})
     @DisplayName("PUT /usuario/{id} - Deve atualizar usuário e retornar status 200")
     void updateShouldReturnUpdatedUser () throws Exception {
         when(usuarioService.update(eq(1L), any(UsuarioInsertDTO.class))).thenReturn(usuarioDTO);
@@ -121,6 +129,7 @@ public class UsuarioResourceTest {
 
         mockMvc.perform(
                 put("/usuario/{id}", 1L)
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk())
@@ -129,12 +138,33 @@ public class UsuarioResourceTest {
     }
 
     @Test
+    @WithMockUser(username = "teste", roles = {"ADMIN"})
     @DisplayName("DELETE /usuario/{id} - Deve deletar usuário e retornar status 204")
     void deleteShouldReturnNoContent () throws Exception {
         doNothing().when(usuarioService).delete(1L);
 
         mockMvc.perform(
-                delete("/usuario/{id}", 1L))
+                delete("/usuario/{id}", 1L)
+                .with(csrf()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser(username ="teste", roles = {}) // Usuário sem roles para simular um não autenticado
+    @DisplayName("POST /usuario/signup - Deve criar usuário e retornar 201 com o body sendo o usuário criado")
+    void signupShouldReturnCreatedUser () throws Exception {
+        when(usuarioService.signUp(any(UsuarioInsertDTO.class))).thenReturn(usuarioDTO);
+
+        String json = objectMapper.writeValueAsString(usuarioInsertDTO);
+
+        mockMvc.perform(
+                post("/usuario/signup")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/usuario/signup/1"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nome").value("Bruno"));
     }
 }

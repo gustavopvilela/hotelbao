@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EstadiaRepository extends JpaRepository<Estadia, Long> {
+    void deleteAll ();
 }

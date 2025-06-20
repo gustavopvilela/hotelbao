@@ -133,4 +133,18 @@ public class UsuarioResource {
         UsuarioDTO usuario = usuarioService.signUp(dto);
         return ResponseEntity.created(uri).body(usuario);
     }
+
+    @GetMapping(value = "/clientes", produces = "application/json")
+    @Operation(
+            description = "Retorna todos os usuários que têm a role de cliente",
+            summary = "Retorna todos os clientes",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "200")
+            }
+    )
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
+    public ResponseEntity<Page<UsuarioDTO>> findAllClients (Pageable pageable) {
+        Page<UsuarioDTO> clientes = usuarioService.findAllClients(pageable);
+        return ResponseEntity.ok().body(clientes);
+    }
 }

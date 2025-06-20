@@ -48,6 +48,7 @@ public class UsuarioResourceTest {
     public void setUp () {
         Set<RoleDTO> roles = new HashSet<>();
         roles.add(new RoleDTO(1L, "ADMIN"));
+        roles.add(new RoleDTO(2L, "CLIENTE"));
 
         usuarioDTO = new UsuarioDTO();
         usuarioDTO.setId(1L);
@@ -166,5 +167,23 @@ public class UsuarioResourceTest {
                 .andExpect(header().string("Location", "http://localhost/usuario/signup/1"))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nome").value("Bruno"));
+    }
+
+    @Test
+    @WithMockUser(username = "teste", roles = {"ADMIN"})
+    @DisplayName("GET /usuario/clientes - Deve retornar uma lista paginada de clientes com status 200")
+    void findAllClientsShouldReturnClientsPaged () throws Exception {
+        Page<UsuarioDTO> page = new PageImpl<>(Collections.singletonList(usuarioDTO), PageRequest.of(0, 10), 1);
+        when(usuarioService.findAllClients(any())).thenReturn(page);
+
+        mockMvc.perform(
+                        get("/usuario/clientes")
+                                .param("page", "0")
+                                .param("size", "10")
+                                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].nome").value("Bruno"))
+                .andExpect(jsonPath("$.content[0].email").value("bruno@email.com"));
     }
 }

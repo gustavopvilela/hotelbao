@@ -61,6 +61,17 @@ public class UsuarioService implements UserDetailsService {
                 .add(linkTo(methodOn(UsuarioResource.class).delete(usuario.getId())).withRel("Deletar usuário"));
     }
 
+    @Transactional(readOnly = true)
+    public UsuarioDTO findByLogin (String login) {
+        Optional<Usuario> opt = usuarioRepository.findByLogin(login);
+        Usuario usuario = opt.orElseThrow(() -> new ResourceNotFound("Usuário não encontrado"));
+        return new UsuarioDTO(usuario)
+                .add(linkTo(methodOn(UsuarioResource.class).findById(usuario.getId())).withSelfRel())
+                .add(linkTo(methodOn(UsuarioResource.class).findAll(null)).withRel("Todos os usuários"))
+                .add(linkTo(methodOn(UsuarioResource.class).update(usuario.getId(), null)).withRel("Atualizar usuário"))
+                .add(linkTo(methodOn(UsuarioResource.class).delete(usuario.getId())).withRel("Deletar usuário"));
+    }
+
     @Transactional
     public UsuarioDTO insert (UsuarioInsertDTO dto) {
         Usuario entity = new Usuario();

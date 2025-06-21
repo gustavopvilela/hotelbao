@@ -9,10 +9,11 @@ import org.springframework.stereotype.Repository;
 import hotelbao.backend.projection.UserDetailsProjection;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Usuario findByLogin (String login);
+    Optional<Usuario> findByLogin (String login);
     Usuario findByEmail (String email);
     Usuario findByLoginAndSenha (String login, String senha);
     Usuario findByEmailAndSenha (String email, String senha);

@@ -53,6 +53,21 @@ public class UsuarioResource {
         return ResponseEntity.ok().body(usuario);
     }
 
+    @GetMapping(value = "/findByLogin/{login}")
+    @Operation(
+            description = "Retorna um único usuário baseado em seu login",
+            summary = "Retorna um usuário de acordo com o login",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Not found", responseCode = "404")
+            }
+    )
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENTE')")
+    public ResponseEntity<UsuarioDTO> findByLogin (@PathVariable String login) {
+        UsuarioDTO usuario = usuarioService.findByLogin(login);
+        return ResponseEntity.ok().body(usuario);
+    }
+
     @PostMapping(produces = "application/json")
     @Operation(
         description = "Cria um novo usuário no banco de dados",

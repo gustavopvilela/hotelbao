@@ -3,33 +3,20 @@ package hotelbao.backend;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hotelbao.backend.dto.UsuarioDTO;
-import hotelbao.backend.resource.UsuarioResource;
-import hotelbao.backend.util.RestResponsePage;
+import hotelbao.backend.menu.OpcoesMenuAdmin;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
-import java.util.List;
 import java.util.Scanner;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
@@ -69,6 +56,9 @@ public class BackendApplication {
 		@Value("${security.client-secret}")
 		private String clientSecret;
 
+		@Autowired
+		private OpcoesMenuAdmin menuAdmin;
+
 		private static final String URL_BASE = "http://localhost:8080";
 		private UsuarioDTO usuarioLogado = new UsuarioDTO();
 		private String jwtToken;
@@ -86,6 +76,7 @@ public class BackendApplication {
 		public void executarMenuPrincipal() {
 			boolean emExecucao = true;
 			int opcao;
+			int opcaoInterna = 0;
 
 			while (emExecucao) {
 				if (usuarioLogado.getId() == null) {
@@ -115,120 +106,70 @@ public class BackendApplication {
 					opcao = lerOpcao();
 
 					switch (opcao) {
-						case 1 -> {}
-						case 2 -> {}
-						case 3 -> {}
-						case 4 -> {
-							int page = 0, size = 50;
+						case 1 -> {
+							do {
+								menuInternoCliente();
+								System.out.print("Digite a opção: ");
+								opcaoInterna = lerOpcao();
 
-							try {
-								/* Colocando o bearer token na requisição */
-								HttpHeaders headers = new HttpHeaders();
-								headers.setBearerAuth(jwtToken);
-								HttpEntity<String> requisicao = new HttpEntity<>(headers);
-
-								String uri = String.format("%s/usuario/clientes?page=%d&size=%d", URL_BASE, page, size);
-
-								/* Faz a chamada da requisição */
-								ResponseEntity<RestResponsePage<UsuarioDTO>> resposta = restTemplate.exchange(
-										uri,
-										HttpMethod.GET,
-										requisicao,
-										new ParameterizedTypeReference<RestResponsePage<UsuarioDTO>>() {}
-								);
-
-								if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
-									Page<UsuarioDTO> clientes = resposta.getBody();
-
-									PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
-											clientes.getSize(),
-											clientes.getNumber(),
-											clientes.getTotalElements(),
-											clientes.getTotalPages()
-									);
-
-									List<EntityModel<UsuarioDTO>> conteudo = clientes.stream()
-									.map(EntityModel::of)
-									.toList();
-
-									PagedModel<EntityModel<UsuarioDTO>> pagedModel = PagedModel.of(conteudo, metadata);
-
-									pagedModel.add(
-											linkTo(
-												methodOn(UsuarioResource.class)
-												.findAllClients(
-													PageRequest.of(clientes.getNumber(), clientes.getSize())
-												)
-											).withSelfRel()
-									);
-
-									if (clientes.hasNext()) {
-										Pageable next = clientes.nextPageable();
-										pagedModel.add(linkTo(methodOn(UsuarioResource.class).findAllClients(next)).withRel("next"));
+								switch (opcaoInterna) {
+									case 1 -> {
+										menuAdmin.inserirCliente(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
 									}
-									if (clientes.hasPrevious()) {
-										Pageable prev = clientes.previousPageable();
-										pagedModel.add(linkTo(methodOn(UsuarioResource.class).findAllClients(prev)).withRel("prev"));
+									case 2 -> {
+										menuAdmin.deletarCliente(scanner, jwtToken, URL_BASE, restTemplate);
 									}
-
-									/* Imprimindo o conteúdo */
-									pagedModel.getContent().forEach(
-										dto -> System.out.println(dto.toString())
-									);
+									case 3 -> {
+										menuAdmin.alterarCliente(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
+									}
+									case 0 -> {}
+									default -> {
+										System.out.println("=== OPÇÃO INVÁLIDA ===");
+										pausar();
+									}
 								}
 							}
-							catch (HttpClientErrorException.Forbidden ex) {
-								System.out.println("403: Forbidden: " + ex.getMessage());
-							}
-							catch (HttpClientErrorException.Unauthorized ex) {
-								System.out.println("401: Unauthorized: " + ex.getMessage());
-							}
-							catch (Exception ex) {
-								System.out.println("ERRO: " + ex.getMessage());
-								ex.printStackTrace();
-							}
+							while (opcaoInterna != 0);
+						}
+						case 2 -> {
+							do {
+								menuInternoCliente();
+								System.out.print("Digite a opção: ");
+								opcaoInterna = lerOpcao();
 
+								switch (opcaoInterna) {
+									case 1 -> {
+										menuAdmin.inserirQuarto(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
+									}
+									case 2 -> {
+										menuAdmin.deletarQuarto(scanner, jwtToken, URL_BASE, restTemplate);
+									}
+									case 3 -> {
+										menuAdmin.alterarQuarto(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
+									}
+									case 0 -> {}
+									default -> {
+										System.out.println("=== OPÇÃO INVÁLIDA ===");
+										pausar();
+									}
+								}
+							}
+							while (opcaoInterna != 0);
+						}
+						case 3 -> {}
+						case 4 -> { /* Listar todos os clientes */
+							menuAdmin.listarTodosClientes(jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
 						case 5 -> {}
 						case 6 -> {}
 						case 7 -> {}
 						case 8 -> { /* Limpar banco de dados */
-							System.out.println("=========================");
-							System.out.println("DELETAR BANCO DE DADOS");
-							System.out.println("=========================");
-
-							System.out.println("Deseja realmente APAGAR todos os dados cadastrados? (S/N): ");
-							String apagar = scanner.nextLine();
-
-							if (apagar.equalsIgnoreCase("N")) break;
-
-							try {
-								HttpHeaders headers = new HttpHeaders();
-								headers.setBearerAuth(jwtToken);
-								HttpEntity<Void> requisicao = new HttpEntity<>(headers);
-
-								ResponseEntity<Void> resposta = restTemplate.exchange(
-										URL_BASE + "/database/clear",
-										HttpMethod.DELETE,
-										requisicao,
-										Void.class
-								);
-
-								if (resposta.getStatusCode() == HttpStatus.NO_CONTENT) {
-									System.out.println("Banco de dados deletado com sucesso.");
-								}
-								else {
-									System.out.println("Falha ao limpar banco de dados: " + resposta.getStatusCode());
-								}
-							} catch (HttpClientErrorException.Forbidden ex) {
-								System.out.println("403: Forbidden");
-							} catch (HttpClientErrorException.Unauthorized ex) {
-								System.out.println("401: Unauthorized");
-							} catch (Exception ex) {
-								System.out.println("Erro ao chamar requisição: " + ex.getMessage());
-							}
-
+							menuAdmin.limparBancoDeDados(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
 						case 9 -> {}
@@ -243,6 +184,8 @@ public class BackendApplication {
 				}
 			}
 		}
+
+
 
 		private void pausar() {
 			System.out.println("Pressione Enter para continuar...");
@@ -337,19 +280,36 @@ public class BackendApplication {
 			System.out.println("6 - Listar estadias cadastradas");
 			System.out.println("7 - Emitir nota fiscal");
 			System.out.println("8 - Limpar banco de dados");
-			System.out.println("9 - Relatório - Maior valor da estadia do cliente");
-			System.out.println("10 - Relatório - Menor valor da estadia do cliente");
+			System.out.println("9 - Relatório - Estadia de maior valor do cliente");
+			System.out.println("10 - Relatório - Estadia de menor valor do cliente");
 			System.out.println("11 - Relatório - Totalizar as estadias do cliente");
 			System.out.println("0 - Sair");
+		}
+
+		private void menuInternoCliente () {
+			System.out.println("=============== Menu de opções do cliente ===============");
+			System.out.println("1 - Inserir cliente");
+			System.out.println("2 - Deletar cliente");
+			System.out.println("3 - Alterar cliente");
+			System.out.println("0 - Voltar ao menu anterior");
+		}
+
+		private void menuInternoQuarto () {
+			System.out.println("=============== Menu de opções do cliente ===============");
+			System.out.println("1 - Inserir quarto");
+			System.out.println("2 - Deletar quarto");
+			System.out.println("3 - Alterar quarto");
+			System.out.println("0 - Voltar ao menu anterior");
 		}
 
 		private void menuCliente() {
 			System.out.println("=============== Menu de opções (Cliente) ===============");
 			System.out.println("1 - Fazer uma reserva");
-			System.out.println("2 - Relatório - Maior valor da estadia");
-			System.out.println("3 - Relatório - Menor valor da estadia");
-			System.out.println("4 - Relatório - Totalizar as estadias");
-			System.out.println("5 - Recuperar senha");
+			System.out.println("2 - Minhas reservas");
+			System.out.println("3 - Relatório - Estadia de maior valor");
+			System.out.println("4 - Relatório - Estadia de menor valor");
+			System.out.println("5 - Relatório - Totalizar as estadias");
+			System.out.println("6 - Recuperar senha");
 			System.out.println("0 - Sair");
 		}
 	}

@@ -81,13 +81,14 @@ public class UsuarioResource {
     )
     @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<UsuarioDTO> insert (@Valid @RequestBody UsuarioInsertDTO dto) {
+        UsuarioDTO usuario = usuarioService.insert(dto);
+
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(dto.getId())
+                .buildAndExpand(usuario.getId())
                 .toUri();
 
-        UsuarioDTO usuario = usuarioService.insert(dto);
         return ResponseEntity.created(uri).body(usuario);
     }
 

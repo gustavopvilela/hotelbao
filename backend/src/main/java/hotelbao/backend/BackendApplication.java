@@ -99,7 +99,20 @@ public class BackendApplication {
 				} else if (usuarioLogado.hasRole("ROLE_CLIENTE")) {
 					menuCliente();
 					opcao = lerOpcao();
-					// TODO: executar opções de cliente
+
+					switch (opcao) {
+						case 1 -> {}
+						case 2 -> {}
+						case 3 -> {}
+						case 4 -> {}
+						case 5 -> {}
+						case 6 -> {}
+						case 0 -> emExecucao = false;
+						default -> {
+							System.out.println("=== OPÇÃO INVÁLIDA ===");
+							pausar();
+						}
+					}
 
 				} else if (usuarioLogado.hasRole("ROLE_ADMIN")) {
 					menuAdmin();
@@ -160,21 +173,69 @@ public class BackendApplication {
 							}
 							while (opcaoInterna != 0);
 						}
-						case 3 -> {}
+						case 3 -> {
+							do {
+								menuInternoCliente();
+								System.out.print("Digite a opção: ");
+								opcaoInterna = lerOpcao();
+
+								switch (opcaoInterna) {
+									case 1 -> {
+										menuAdmin.inserirEstadia(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
+									}
+									case 2 -> {
+										menuAdmin.deletarEstadia(scanner, jwtToken, URL_BASE, restTemplate);
+									}
+									case 3 -> {
+										menuAdmin.alterarEstadia(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
+									}
+									case 4 -> {
+										menuAdmin.visualizarEstadia(scanner, jwtToken, URL_BASE, restTemplate);
+										pausar();
+									}
+									case 0 -> {}
+									default -> {
+										System.out.println("=== OPÇÃO INVÁLIDA ===");
+										pausar();
+									}
+								}
+							}
+							while (opcaoInterna != 0);
+						}
 						case 4 -> { /* Listar todos os clientes */
-							menuAdmin.listarTodosClientes(jwtToken, URL_BASE, restTemplate);
+							menuAdmin.listarTodosClientes(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
-						case 5 -> {}
-						case 6 -> {}
-						case 7 -> {}
+						case 5 -> { /* Listar todos os quartos */
+							menuAdmin.listarTodosQuartos(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 6 -> { /* Listar todas as estadias */
+							menuAdmin.listarTodasEstadias(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 7 -> { /* Emitir nota fiscal */
+							menuAdmin.emitirNotaFiscal(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 8 -> { /* Limpar banco de dados */
 							menuAdmin.limparBancoDeDados(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
-						case 9 -> {}
-						case 10 -> {}
-						case 11 -> {}
+						case 9 -> { /* Estadia de maior valor do cliente */
+							menuAdmin.estadiaMaiorValorCliente(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 10 -> { /* Estadia de menor valor do cliente */
+							menuAdmin.estadiaMenorValorCliente(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 11 -> { /* Valor total de estadias do cliente */
+							menuAdmin.totalEstadiasCliente(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 0 -> emExecucao = false;
 						default -> {
 							System.out.println("=== OPÇÃO INVÁLIDA ===");
@@ -299,6 +360,15 @@ public class BackendApplication {
 			System.out.println("1 - Inserir quarto");
 			System.out.println("2 - Deletar quarto");
 			System.out.println("3 - Alterar quarto");
+			System.out.println("0 - Voltar ao menu anterior");
+		}
+
+		private void menuInternoEstadia () {
+			System.out.println("=============== Menu de opções do cliente ===============");
+			System.out.println("1 - Inserir estadia");
+			System.out.println("2 - Deletar estadia");
+			System.out.println("3 - Alterar estadia");
+			System.out.println("4 - Visualizar estadia");
 			System.out.println("0 - Voltar ao menu anterior");
 		}
 

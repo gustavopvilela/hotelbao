@@ -34,7 +34,7 @@ public class OpcoesMenuAdmin {
         this.roleRepository = roleRepository;
     }
 
-    public void listarTodosClientes(String jwtToken, String urlBase, RestTemplate restTemplate) {
+    public void listarTodosClientes(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         int page = 0, size = 50;
         List<UsuarioDTO> todosClientes = new ArrayList<>();
         boolean temMaisPaginas = true;
@@ -44,6 +44,14 @@ public class OpcoesMenuAdmin {
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(jwtToken);
             HttpEntity<String> requisicao = new HttpEntity<>(headers);
+
+            System.out.println("================================");
+            System.out.println("LISTAGEM DE CLIENTES CADASTRADOS");
+            System.out.println("================================");
+            System.out.println("Deseja realmente imprimir o relatório? (S/N): ");
+            String apagar = scanner.nextLine();
+
+            if (!apagar.equalsIgnoreCase("S")) return;
 
             while (temMaisPaginas) {
                 String uri = String.format("%s/%s/clientes?page=%d&size=%d", urlBase, USUARIO_URL_PATH, page, size);
@@ -102,10 +110,6 @@ public class OpcoesMenuAdmin {
             if (todosClientes.isEmpty()) {
                 System.out.println("Não existem clientes cadastrados no sistema!");
             } else {
-                System.out.println("================================");
-                System.out.println("LISTAGEM DE CLIENTES CADASTRADOS");
-                System.out.println("Total de clientes: " + todosClientes.size());
-                System.out.println("================================");
                 todosClientes.forEach(cliente -> {
                     System.out.println("Cliente: - Código: " + cliente.getId() + " Nome: " + cliente.getNome());
                 });
@@ -121,6 +125,10 @@ public class OpcoesMenuAdmin {
             System.out.println("ERRO: " + ex.getMessage());
         }
     }
+
+    public void listarTodosQuartos(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void listarTodasEstadias(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 
     public void limparBancoDeDados (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         System.out.println("=========================");
@@ -375,4 +383,22 @@ public class OpcoesMenuAdmin {
     public void alterarQuarto (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 
     /* TODO: função getQuarto */
+
+    public void inserirEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void alterarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void deletarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void visualizarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    /* TODO: função getEstadia */
+
+    public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void estadiaMaiorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void estadiaMenorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+
+    public void totalEstadiasCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 }

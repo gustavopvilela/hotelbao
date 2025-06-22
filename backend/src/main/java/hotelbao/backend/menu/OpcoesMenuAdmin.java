@@ -396,9 +396,18 @@ public class OpcoesMenuAdmin {
 
     public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 
-    public void estadiaMaiorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void estadiaMaiorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro
+        *   na função no arquivo MenuOpcoesCliente.java */
+    }
 
-    public void estadiaMenorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void estadiaMenorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro
+         *   na função no arquivo MenuOpcoesCliente.java */
+    }
 
-    public void totalEstadiasCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void totalEstadiasCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro
+         *   na função no arquivo MenuOpcoesCliente.java */
+    }
 }

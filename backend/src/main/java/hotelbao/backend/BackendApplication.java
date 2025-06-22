@@ -159,7 +159,7 @@ public class BackendApplication {
 						}
 						case 2 -> {
 							do {
-								menuInternoCliente();
+								menuInternoQuarto();
 								System.out.print("Digite a opção: ");
 								opcaoInterna = lerOpcao();
 
@@ -186,7 +186,7 @@ public class BackendApplication {
 						}
 						case 3 -> {
 							do {
-								menuInternoCliente();
+								menuInternoEstadia();
 								System.out.print("Digite a opção: ");
 								opcaoInterna = lerOpcao();
 

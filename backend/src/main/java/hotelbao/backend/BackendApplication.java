@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hotelbao.backend.dto.UsuarioDTO;
 import hotelbao.backend.menu.OpcoesMenuAdmin;
+import hotelbao.backend.menu.OpcoesMenuCliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -59,6 +60,9 @@ public class BackendApplication {
 		@Autowired
 		private OpcoesMenuAdmin menuAdmin;
 
+		@Autowired
+		private OpcoesMenuCliente menuCliente;
+
 		private static final String URL_BASE = "http://localhost:8080";
 		private UsuarioDTO usuarioLogado = new UsuarioDTO();
 		private String jwtToken;
@@ -89,6 +93,10 @@ public class BackendApplication {
 							// TODO: listar quartos
 						}
 						case 2 -> menuLogin();
+						case 3 -> {
+							menuCliente.recuperarSenha(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 0 -> emExecucao = false;
 						default -> {
 							System.out.println("=== OPÇÃO INVÁLIDA ===");
@@ -106,7 +114,10 @@ public class BackendApplication {
 						case 3 -> {}
 						case 4 -> {}
 						case 5 -> {}
-						case 6 -> {}
+						case 6 -> {
+							menuCliente.recuperarSenha(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 0 -> emExecucao = false;
 						default -> {
 							System.out.println("=== OPÇÃO INVÁLIDA ===");
@@ -268,6 +279,7 @@ public class BackendApplication {
 			System.out.println("===============================================");
 			System.out.println("1 - Visualizar quartos do hotel");
 			System.out.println("2 - Login");
+			System.out.println("3 - Recuperar senha");
 			System.out.println("0 - Sair");
 		}
 

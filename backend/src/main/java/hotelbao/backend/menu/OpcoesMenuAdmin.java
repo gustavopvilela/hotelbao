@@ -340,10 +340,10 @@ public class OpcoesMenuAdmin {
         }
     }
 
-    private UsuarioDTO getCliente (String login, String jwtToken, String urlBase, RestTemplate restTemplate) {
+    public UsuarioDTO getCliente (String login, String jwtToken, String urlBase, RestTemplate restTemplate) {
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(jwtToken);
+            if (jwtToken != null) headers.setBearerAuth(jwtToken);
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             HttpEntity<Void> requisicao = new HttpEntity<>(headers);

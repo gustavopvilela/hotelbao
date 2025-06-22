@@ -62,7 +62,6 @@ public class UsuarioResource {
                     @ApiResponse(description = "Not found", responseCode = "404")
             }
     )
-    //@PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENTE')")
     public ResponseEntity<UsuarioDTO> findByLogin (@PathVariable String login) {
         UsuarioDTO usuario = usuarioService.findByLogin(login);
         return ResponseEntity.ok().body(usuario);

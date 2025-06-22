@@ -55,7 +55,7 @@ public class AuthService {
         passwordRecoverRepository.save(passwordRecover);
 
         /* Envia o email com o token incluso no corpo da mensagem */
-        String body = "Acesse o link para definir uma nova senha (válido por " + tokenMinutes + " minutos).\n\n" + uri + token;
+        String body = "Seu token de recuperação de senha, válido por 30 minutos, é: " + token;
 
         emailService.sendEmail(new EmailDTO(usuario.getEmail(), "Recuperação de senha", body));
     }

@@ -2,6 +2,8 @@ package hotelbao.backend.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hotelbao.backend.dto.EmailDTO;
+import hotelbao.backend.menu.OpcoesMenuAdmin;
+import hotelbao.backend.menu.OpcoesMenuCliente;
 import hotelbao.backend.service.EmailService;
 import jakarta.validation.constraints.Null;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +31,9 @@ public class EmailResourceTest {
     @Autowired
     private MockMvc mockMvc;
     
-    @MockBean
-    private EmailService emailService;
+    @MockBean private EmailService emailService;
+    @MockBean private OpcoesMenuAdmin menuAdmin;
+    @MockBean private OpcoesMenuCliente menuCliente;
     
     @Autowired
     private ObjectMapper objectMapper;

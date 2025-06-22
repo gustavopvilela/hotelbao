@@ -1,6 +1,7 @@
 package hotelbao.backend.dto;
 
 import hotelbao.backend.entity.Usuario;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.hateoas.RepresentationModel;
@@ -15,6 +16,7 @@ public class UsuarioDTO extends RepresentationModel<UsuarioDTO> {
     @Email(message = "Insira um e-mail válido.")
     private String email;
     @NotBlank(message = "Campo obrigatório.")
+    @Column(unique = true)
     private String login;
     @NotBlank(message = "Campo obrigatório")
     private String telefone;
@@ -98,5 +100,13 @@ public class UsuarioDTO extends RepresentationModel<UsuarioDTO> {
                 ", telefone='" + telefone + '\'' +
                 ", roles=" + roles +
                 '}';
+    }
+
+    public boolean hasRole(String role) {
+        return !roles
+                .stream()
+                .filter(r -> r.getAuthority().equals(role))
+                .toList()
+                .isEmpty();
     }
 }

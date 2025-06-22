@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hotelbao.backend.dto.RoleDTO;
 import hotelbao.backend.dto.UsuarioDTO;
 import hotelbao.backend.dto.UsuarioInsertDTO;
+import hotelbao.backend.menu.OpcoesMenuAdmin;
+import hotelbao.backend.menu.OpcoesMenuCliente;
 import hotelbao.backend.service.UsuarioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,6 +39,9 @@ public class UsuarioResourceTest {
 
     @MockBean
     private UsuarioService usuarioService;
+
+    @MockBean private OpcoesMenuAdmin menuAdmin;
+    @MockBean private OpcoesMenuCliente menuCliente;
 
     @Autowired
     private ObjectMapper objectMapper;

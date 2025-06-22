@@ -101,4 +101,12 @@ public class UsuarioDTO extends RepresentationModel<UsuarioDTO> {
                 ", roles=" + roles +
                 '}';
     }
+
+    public boolean hasRole(String role) {
+        return !roles
+                .stream()
+                .filter(r -> r.getAuthority().equals(role))
+                .toList()
+                .isEmpty();
+    }
 }

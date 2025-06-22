@@ -2,47 +2,47 @@ package hotelbao.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hotelbao.backend.entity.Usuario;
+import hotelbao.backend.dto.UsuarioDTO;
+import hotelbao.backend.resource.UsuarioResource;
+import hotelbao.backend.util.RestResponsePage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.List;
 import java.util.Scanner;
 
+import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
+
 @SpringBootApplication
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class BackendApplication {
 
 	private static ConfigurableApplicationContext contexto;
 
 	public static void main(String[] args) {
-		// Inicia o contexto Spring em outra thread
-		Thread thread = new Thread(() -> {
-			contexto = SpringApplication.run(BackendApplication.class, args);
-		});
-		thread.start();
+		contexto = SpringApplication.run(BackendApplication.class, args);
 
-		// Aguarda contexto ficar pronto
-		try {
-			Thread.sleep(7000);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
-
-		// Exibe clientId e clientSecret
-//		String clientId = contexto.getEnvironment().getProperty("security.client-id");
-//		String clientSecret = contexto.getEnvironment().getProperty("security.client-secret");
-//		System.out.println(clientId + ", " + clientSecret);
-
-		// Obtém o runner do contexto e executa o menu
 		AppRunner runner = contexto.getBean(AppRunner.class);
 		runner.executarMenuPrincipal();
 	}
@@ -70,7 +70,7 @@ public class BackendApplication {
 		private String clientSecret;
 
 		private static final String URL_BASE = "http://localhost:8080";
-		private Usuario usuarioLogado = new Usuario();
+		private UsuarioDTO usuarioLogado = new UsuarioDTO();
 		private String jwtToken;
 
 		public AppRunner(RestTemplate restTemplate, Scanner scanner) {
@@ -85,12 +85,13 @@ public class BackendApplication {
 
 		public void executarMenuPrincipal() {
 			boolean emExecucao = true;
+			int opcao;
 
 			while (emExecucao) {
 				if (usuarioLogado.getId() == null) {
 					mostrarPrimeiroMenu();
 					System.out.print("Digite a opção: ");
-					int opcao = lerOpcao();
+					opcao = lerOpcao();
 
 					switch (opcao) {
 						case 1 -> {
@@ -106,13 +107,139 @@ public class BackendApplication {
 
 				} else if (usuarioLogado.hasRole("ROLE_CLIENTE")) {
 					menuCliente();
-					int opcao = lerOpcao();
+					opcao = lerOpcao();
 					// TODO: executar opções de cliente
 
 				} else if (usuarioLogado.hasRole("ROLE_ADMIN")) {
 					menuAdmin();
-					int opcao = lerOpcao();
-					// TODO: executar opções de admin
+					opcao = lerOpcao();
+
+					switch (opcao) {
+						case 1 -> {}
+						case 2 -> {}
+						case 3 -> {}
+						case 4 -> {
+							int page = 0, size = 50;
+
+							try {
+								/* Colocando o bearer token na requisição */
+								HttpHeaders headers = new HttpHeaders();
+								headers.setBearerAuth(jwtToken);
+								HttpEntity<String> requisicao = new HttpEntity<>(headers);
+
+								String uri = String.format("%s/usuario/clientes?page=%d&size=%d", URL_BASE, page, size);
+
+								/* Faz a chamada da requisição */
+								ResponseEntity<RestResponsePage<UsuarioDTO>> resposta = restTemplate.exchange(
+										uri,
+										HttpMethod.GET,
+										requisicao,
+										new ParameterizedTypeReference<RestResponsePage<UsuarioDTO>>() {}
+								);
+
+								if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+									Page<UsuarioDTO> clientes = resposta.getBody();
+
+									PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
+											clientes.getSize(),
+											clientes.getNumber(),
+											clientes.getTotalElements(),
+											clientes.getTotalPages()
+									);
+
+									List<EntityModel<UsuarioDTO>> conteudo = clientes.stream()
+									.map(EntityModel::of)
+									.toList();
+
+									PagedModel<EntityModel<UsuarioDTO>> pagedModel = PagedModel.of(conteudo, metadata);
+
+									pagedModel.add(
+											linkTo(
+												methodOn(UsuarioResource.class)
+												.findAllClients(
+													PageRequest.of(clientes.getNumber(), clientes.getSize())
+												)
+											).withSelfRel()
+									);
+
+									if (clientes.hasNext()) {
+										Pageable next = clientes.nextPageable();
+										pagedModel.add(linkTo(methodOn(UsuarioResource.class).findAllClients(next)).withRel("next"));
+									}
+									if (clientes.hasPrevious()) {
+										Pageable prev = clientes.previousPageable();
+										pagedModel.add(linkTo(methodOn(UsuarioResource.class).findAllClients(prev)).withRel("prev"));
+									}
+
+									/* Imprimindo o conteúdo */
+									pagedModel.getContent().forEach(
+										dto -> System.out.println(dto.toString())
+									);
+								}
+							}
+							catch (HttpClientErrorException.Forbidden ex) {
+								System.out.println("403: Forbidden: " + ex.getMessage());
+							}
+							catch (HttpClientErrorException.Unauthorized ex) {
+								System.out.println("401: Unauthorized: " + ex.getMessage());
+							}
+							catch (Exception ex) {
+								System.out.println("ERRO: " + ex.getMessage());
+								ex.printStackTrace();
+							}
+
+							pausar();
+						}
+						case 5 -> {}
+						case 6 -> {}
+						case 7 -> {}
+						case 8 -> { /* Limpar banco de dados */
+							System.out.println("=========================");
+							System.out.println("DELETAR BANCO DE DADOS");
+							System.out.println("=========================");
+
+							System.out.println("Deseja realmente APAGAR todos os dados cadastrados? (S/N): ");
+							String apagar = scanner.nextLine();
+
+							if (apagar.equalsIgnoreCase("N")) break;
+
+							try {
+								HttpHeaders headers = new HttpHeaders();
+								headers.setBearerAuth(jwtToken);
+								HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+								ResponseEntity<Void> resposta = restTemplate.exchange(
+										URL_BASE + "/database/clear",
+										HttpMethod.DELETE,
+										requisicao,
+										Void.class
+								);
+
+								if (resposta.getStatusCode() == HttpStatus.NO_CONTENT) {
+									System.out.println("Banco de dados deletado com sucesso.");
+								}
+								else {
+									System.out.println("Falha ao limpar banco de dados: " + resposta.getStatusCode());
+								}
+							} catch (HttpClientErrorException.Forbidden ex) {
+								System.out.println("403: Forbidden");
+							} catch (HttpClientErrorException.Unauthorized ex) {
+								System.out.println("401: Unauthorized");
+							} catch (Exception ex) {
+								System.out.println("Erro ao chamar requisição: " + ex.getMessage());
+							}
+
+							pausar();
+						}
+						case 9 -> {}
+						case 10 -> {}
+						case 11 -> {}
+						case 0 -> emExecucao = false;
+						default -> {
+							System.out.println("=== OPÇÃO INVÁLIDA ===");
+							pausar();
+						}
+					}
 				}
 			}
 		}
@@ -142,7 +269,7 @@ public class BackendApplication {
 
 		private void menuLogin() {
 			System.out.println("===============================================");
-			System.out.println("LOGIN");
+			System.out.println("Bem-vindo ao Sistema do Hotel BAO");
 			System.out.println("===============================================");
 			System.out.print("Usuário (login): ");
 			String username = scanner.nextLine();
@@ -179,8 +306,12 @@ public class BackendApplication {
 					HttpHeaders authHeaders = new HttpHeaders();
 					authHeaders.setBearerAuth(jwtToken);
 					HttpEntity<Void> authRequest = new HttpEntity<>(authHeaders);
-					ResponseEntity<Usuario> userResp = restTemplate.exchange(
-							URL_BASE + "/usuario/findByLogin/" + username, HttpMethod.GET, authRequest, Usuario.class);
+					ResponseEntity<UsuarioDTO> userResp = restTemplate.exchange(
+							URL_BASE + "/usuario/findByLogin/" + username,
+							HttpMethod.GET,
+							authRequest,
+							UsuarioDTO.class
+					);
 
 					usuarioLogado = userResp.getBody();
 					System.out.println(usuarioLogado);

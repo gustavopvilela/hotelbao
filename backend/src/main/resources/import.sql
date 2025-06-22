@@ -36,7 +36,7 @@ INSERT INTO usuario_role (usuario_id, role_id) VALUES (13, 1); -- Isabela -> ADM
 INSERT INTO usuario_role (usuario_id, role_id) VALUES (14, 2); -- João    -> CLIENTE
 INSERT INTO usuario_role (usuario_id, role_id) VALUES (15, 2); -- Karen   -> CLIENTE
 
--- Criação dos quartos
+-- Quartos
 INSERT INTO quarto (valor, descricao, imagem_url) VALUES (40, 'Quarto com vista para o mar', 'vista-mar.jpg');
 INSERT INTO quarto (valor, descricao, imagem_url) VALUES (50, 'Suíte executiva', 'executiva.jpg');
 INSERT INTO quarto (valor, descricao, imagem_url) VALUES (60, 'Quarto standard', 'standard.jpg');
@@ -53,7 +53,7 @@ INSERT INTO quarto (valor, descricao, imagem_url) VALUES (160, 'Quarto adaptado 
 INSERT INTO quarto (valor, descricao, imagem_url) VALUES (170, 'Quarto com escritório', 'escritorio.jpg');
 INSERT INTO quarto (valor, descricao, imagem_url) VALUES (180, 'Quarto com cozinha compacta', 'cozinha.jpg');
 
--- 50 estadias com data_entrada/data_saida diferentes e variadas
+-- Estadias
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-06-01', '2025-06-02',  1,  2);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-06-03', '2025-06-04',  2,  2);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-06-05', '2025-06-06',  3,  3);
@@ -69,15 +69,13 @@ INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-06-25', '2025-06-26', 13, 10);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-06-27', '2025-06-28', 14, 10);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-06-29', '2025-06-30', 15, 11);
-INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-01', '2025-07-02', 16, 11);
-INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-03', '2025-07-04', 17, 12);
-INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-05', '2025-07-06', 18, 12);
+INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-01', '2025-07-02', 4, 11);
+INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-03', '2025-07-04', 2, 12);
+INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-05', '2025-07-06', 6, 12);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-07', '2025-07-08',  1, 14);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-09', '2025-07-10',  2, 14);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-11', '2025-07-12',  3, 15);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-13', '2025-07-14',  4, 15);
-
--- Repetições misturadas
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-15', '2025-07-16',  5,  2);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-17', '2025-07-18',  6,  2);
 INSERT INTO estadia (data_entrada, data_saida, quarto_id, cliente_id) VALUES ('2025-07-19', '2025-07-20',  7,  3);

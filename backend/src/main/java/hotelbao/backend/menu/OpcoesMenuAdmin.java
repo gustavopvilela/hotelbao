@@ -3,6 +3,7 @@ package hotelbao.backend.menu;
 import hotelbao.backend.dto.*;
 import hotelbao.backend.entity.Role;
 import hotelbao.backend.repository.RoleRepository;
+import hotelbao.backend.resource.EstadiaResource;
 import hotelbao.backend.resource.UsuarioResource;
 import hotelbao.backend.util.RestResponsePage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -128,7 +130,110 @@ public class OpcoesMenuAdmin {
 
     public void listarTodosQuartos(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 
-    public void listarTodasEstadias(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void listarTodasEstadias(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        int page = 0, size = 50;
+        List<EstadiaDTO> todasEstadias = new ArrayList<>();
+        boolean temMaisPaginas = true;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        try {
+            /* Colocando o bearer token na requisição */
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            HttpEntity<String> requisicao = new HttpEntity<>(headers);
+
+            System.out.println("================================");
+            System.out.println("LISTAGEM DE ESTADIAS CADASTRADAS");
+            System.out.println("================================");
+            System.out.println("Deseja realmente imprimir o relatório? (S/N): ");
+            String imprimir = scanner.nextLine();
+
+            if (!imprimir.equalsIgnoreCase("S")) return;
+
+            while (temMaisPaginas) {
+                String uri = String.format("%s/%s?page=%d&size=%d", urlBase, ESTADIA_URL_PATH, page, size);
+
+                /* Faz a chamada da requisição */
+                ResponseEntity<RestResponsePage<EstadiaDTO>> resposta = restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        requisicao,
+                        new ParameterizedTypeReference<RestResponsePage<EstadiaDTO>>() {}
+                );
+
+                if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                    Page<EstadiaDTO> estadias = resposta.getBody();
+
+                    // Adiciona os clientes da página atual à lista completa
+                    todasEstadias.addAll(estadias.getContent());
+
+                    // Verifica se há próxima página
+                    temMaisPaginas = estadias.hasNext();
+                    page++; // Incrementa para a próxima página
+
+                    PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
+                            estadias.getSize(),
+                            estadias.getNumber(),
+                            estadias.getTotalElements(),
+                            estadias.getTotalPages()
+                    );
+
+                    List<EntityModel<EstadiaDTO>> conteudo = estadias.stream()
+                            .map(EntityModel::of)
+                            .toList();
+
+                    PagedModel<EntityModel<EstadiaDTO>> pagedModel = PagedModel.of(conteudo, metadata);
+
+                    pagedModel.add(
+                            linkTo(methodOn(EstadiaResource.class)
+                                    .findAll(PageRequest.of(estadias.getNumber(), estadias.getSize()))
+                            ).withSelfRel()
+                    );
+
+                    if (estadias.hasNext()) {
+                        Pageable next = estadias.nextPageable();
+                        pagedModel.add(linkTo(methodOn(EstadiaResource.class).findAll(next)).withRel("next"));
+                    }
+                    if (estadias.hasPrevious()) {
+                        Pageable prev = estadias.previousPageable();
+                        pagedModel.add(linkTo(methodOn(EstadiaResource.class).findAll(prev)).withRel("prev"));
+                    }
+                } else {
+                    temMaisPaginas = false;
+                }
+            }
+
+            /* Imprimindo o conteúdo de TODOS os clientes */
+            if (todasEstadias.isEmpty()) {
+                System.out.println("Não existem estadias cadastradas no sistema!");
+            } else {
+                System.out.printf(
+                        "%-20s %-40s %-15s %-15s%n",
+                        "Cliente", "Quarto", "Entrada", "Saída"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+
+                todasEstadias.forEach(estadia -> {
+                    System.out.printf(
+                            "%-20s %-40s %-15s %-15s%n",
+                            estadia.getCliente().getNome(),
+                            estadia.getQuarto().getDescricao(),
+                            estadia.getDataEntrada().format(formatter),
+                            estadia.getDataSaida().format(formatter)
+                    );
+                });
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (Exception ex) {
+            System.out.println("ERRO: " + ex.getMessage());
+        }
+    }
 
     public void limparBancoDeDados (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         System.out.println("=========================");

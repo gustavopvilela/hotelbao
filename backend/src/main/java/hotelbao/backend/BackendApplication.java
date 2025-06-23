@@ -115,6 +115,10 @@ public class BackendApplication {
 						case 4 -> {}
 						case 5 -> {}
 						case 6 -> {
+							menuAdmin.emitirNotaFiscal(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 7 -> {
 							menuCliente.recuperarSenha(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
@@ -391,7 +395,8 @@ public class BackendApplication {
 			System.out.println("3 - Relatório - Estadia de maior valor");
 			System.out.println("4 - Relatório - Estadia de menor valor");
 			System.out.println("5 - Relatório - Totalizar as estadias");
-			System.out.println("6 - Recuperar senha");
+			System.out.println("6 - Emitir nota fiscal");
+			System.out.println("7 - Recuperar senha");
 			System.out.println("0 - Sair");
 		}
 	}

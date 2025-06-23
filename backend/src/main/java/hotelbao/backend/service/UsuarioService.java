@@ -80,10 +80,10 @@ public class UsuarioService implements UserDetailsService {
         //entity.setSenha(dto.getSenha());
         Usuario novo = usuarioRepository.save(entity);
         return new UsuarioDTO(novo)
-                .add(linkTo(methodOn(UsuarioResource.class).findById(entity.getId())).withRel("Encontrar usuário por ID"))
+                .add(linkTo(methodOn(UsuarioResource.class).findById(novo.getId())).withRel("Encontrar usuário por ID"))
                 .add(linkTo(methodOn(UsuarioResource.class).findAll(null)).withRel("Todos os usuários"))
-                .add(linkTo(methodOn(UsuarioResource.class).update(entity.getId(), null)).withRel("Atualizar usuário"))
-                .add(linkTo(methodOn(UsuarioResource.class).delete(entity.getId())).withRel("Deletar usuário"));
+                .add(linkTo(methodOn(UsuarioResource.class).update(novo.getId(), null)).withRel("Atualizar usuário"))
+                .add(linkTo(methodOn(UsuarioResource.class).delete(novo.getId())).withRel("Deletar usuário"));
     }
 
     @Transactional
@@ -100,7 +100,7 @@ public class UsuarioService implements UserDetailsService {
                     .add(linkTo(methodOn(UsuarioResource.class).delete(dto.getId())).withRel("Deletar usuário"));
         }
         catch (EntityNotFoundException ex) {
-            throw new ResourceNotFound("Usuário não encontrado: ID" + id);
+            throw new ResourceNotFound("Usuário não encontrado: ID " + id);
         }
     }
 

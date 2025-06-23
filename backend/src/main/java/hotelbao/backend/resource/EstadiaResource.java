@@ -158,7 +158,6 @@ public class EstadiaResource {
     }
 
     @GetMapping("/menor/{id}")
-    @GetMapping("/maior/{id}")
     @Operation(
             description = "Retorna a estadia mais barata que um cliente já ficou",
             summary = "Retorna a estadia mais barata de um cliente",

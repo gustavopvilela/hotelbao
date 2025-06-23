@@ -2,19 +2,24 @@ package hotelbao.backend.dto;
 
 import hotelbao.backend.entity.Estadia;
 import hotelbao.backend.entity.Quarto;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 
 public class EstadiaDTO extends RepresentationModel<EstadiaDTO> {
     private Long id;
-    @NotBlank(message = "Campo obrigatório.")
+    @Valid
+    @NotNull(message = "A data de entrada é obrigatória")
     private LocalDate dataEntrada;
     private LocalDate dataSaida;
-    @NotBlank(message = "Campo obrigatório.")
+    @Valid
+    @NotNull(message = "Cliente deve ser inserido obrigatoriamente")
     private UsuarioDTO usuario;
-    @NotBlank(message = "Campo obrigatório.")
+    @Valid
+    @NotNull(message = "Quarto deve ser inserido obrigatoriamente")
     private QuartoDTO quarto;
 
     public EstadiaDTO() {}

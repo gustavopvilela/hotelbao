@@ -1,5 +1,6 @@
 package hotelbao.backend.menu;
 
+import hotelbao.backend.dto.QuartoDTO;
 import hotelbao.backend.dto.RoleDTO;
 import hotelbao.backend.dto.UsuarioDTO;
 import hotelbao.backend.dto.UsuarioInsertDTO;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -376,13 +378,195 @@ public class OpcoesMenuAdmin {
         return null;
     }
 
-    public void inserirQuarto (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void inserirQuarto (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
 
-    public void deletarQuarto (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+        QuartoDTO novoQuarto = new QuartoDTO();
 
-    public void alterarQuarto (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+        System.out.print("Informe a descrição do quarto: ");
+        novoQuarto.setDescricao(scanner.nextLine());
 
-    /* TODO: função getQuarto */
+        System.out.print("Informe o valor da diária: ");
+        novoQuarto.setValor(new BigDecimal(scanner.nextLine()));
+
+        System.out.print("Insira a URL de uma imagem do quarto: ");
+        novoQuarto.setImagemUrl(scanner.nextLine());
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<QuartoDTO> requisicao = new HttpEntity<>(novoQuarto, headers);
+
+            String uri = urlBase + "/quarto";
+            ResponseEntity<QuartoDTO> resposta = restTemplate.exchange(
+                    uri,
+                    HttpMethod.POST,
+                    requisicao,
+                    QuartoDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.CREATED) {
+                System.out.println("=== Quarto criado com sucesso! ===");
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+    }
+
+    public void deletarQuarto(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        System.out.print("Digite o id do quarto que deseja deletar: ");
+        Long id = scanner.nextLong();
+        scanner.nextLine();
+
+        QuartoDTO quarto = getQuarto(id, jwtToken, urlBase, restTemplate);
+
+        if (quarto == null) {
+            System.out.println("Quarto não existe ou houve problema na requisição.");
+            return;
+        }
+
+        System.out.print("Tem certeza que deseja excluir o quarto: " + quarto.getDescricao() + "? (S/N): ");
+        String deletar = scanner.nextLine();
+
+        if (!deletar.equalsIgnoreCase("S")) {
+            System.out.println("Operação cancelada.");
+            return;
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = urlBase + "/quarto/" + quarto.getId();
+
+            ResponseEntity<Void> resposta = restTemplate.exchange(
+                    uri, HttpMethod.DELETE, requisicao, Void.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.NO_CONTENT) {
+                System.out.println("=== Quarto deletado com sucesso! ===");
+            }
+        } catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: Sem permissão para deletar.");
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: Token inválido ou ausente.");
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("400: Bad Request: Verifique os dados enviados.");
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: Quarto com ID " + id + " não encontrado.");
+        }
+    }
+
+    public void alterarQuarto(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        System.out.print("Digite o ID do quarto que deseja modificar: ");
+        Long id = scanner.nextLong();
+        scanner.nextLine();
+
+        QuartoDTO quarto = getQuarto(id, jwtToken, urlBase, restTemplate);
+
+        if (quarto == null) {
+            System.out.println("Quarto não encontrado ou erro na requisição.");
+            return;
+        }
+
+        System.out.println("\n=== AVISO: Deixe os campos em branco para manter os valores atuais. ===");
+
+        System.out.print("Descrição atual: " + quarto.getDescricao() + "\nNova descrição: ");
+        String novaDescricao = scanner.nextLine();
+        if (!novaDescricao.trim().isEmpty()) {
+            quarto.setDescricao(novaDescricao);
+        }
+
+        System.out.print("Valor atual: R$" + quarto.getValor() + "\nNovo valor (apenas número): ");
+        String novoValorStr = scanner.nextLine();
+        if (!novoValorStr.trim().isEmpty()) {
+            try {
+                quarto.setValor(new BigDecimal(novoValorStr));
+            } catch (NumberFormatException e) {
+                System.out.println("Valor inválido. Mantendo valor anterior.");
+            }
+        }
+
+        System.out.print("URL da imagem atual: " + quarto.getImagemUrl() + "\nNova URL da imagem: ");
+        String novaImagemUrl = scanner.nextLine();
+        if (!novaImagemUrl.trim().isEmpty()) {
+            quarto.setImagemUrl(novaImagemUrl);
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<QuartoDTO> requisicao = new HttpEntity<>(quarto, headers);
+
+            String uri = urlBase + "/quarto/" + id;
+
+            ResponseEntity<QuartoDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.PUT, requisicao, QuartoDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK) {
+                System.out.println("=== Quarto atualizado com sucesso! ===");
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden - Sem permissão para atualizar.");
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized - Token inválido ou expirado.");
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("400: Bad Request - Erro na requisição.");
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found - Quarto não encontrado.");
+        }
+    }
+
+    public QuartoDTO getQuarto (Long id, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            if (jwtToken != null) headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = urlBase + "/quarto/" + id;
+
+            ResponseEntity<QuartoDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, QuartoDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK) {
+                return resposta.getBody();
+            } else {
+                System.out.println("Erro inesperado: status " + resposta.getStatusCode());
+                return null;
+            }
+        } catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden - Sem permissão para acessar esse recurso.");
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized - Token inválido ou ausente.");
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("400: Bad Request - Verifique os dados enviados.");
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found - Quarto com ID " + id + " não encontrado.");
+        }
+
+        return null;
+    }
 
     public void inserirEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 

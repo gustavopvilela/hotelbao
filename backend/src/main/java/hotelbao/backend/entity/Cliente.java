@@ -1,4 +1,4 @@
-package entity;
+package hotelbao.backend.entity;
 
 import jakarta.persistence.*;
 

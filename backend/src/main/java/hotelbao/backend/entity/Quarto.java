@@ -1,4 +1,4 @@
-package entity;
+package hotelbao.backend.entity;
 
 import jakarta.persistence.*;
 
@@ -19,7 +19,6 @@ public class Quarto {
     private BigDecimal valor;
     private String imagemUrl;
 
-    /* Relação com Estadia. */
     @OneToMany(mappedBy = "quarto", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Estadia> estadias = new HashSet<>();
 

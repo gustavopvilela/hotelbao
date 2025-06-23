@@ -1,6 +1,6 @@
-package repository;
+package hotelbao.backend.repository;
 
-import entity.Estadia;
+import hotelbao.backend.entity.Estadia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

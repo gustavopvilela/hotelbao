@@ -1,8 +1,6 @@
 package hotelbao.backend.menu;
 
-import hotelbao.backend.dto.RoleDTO;
-import hotelbao.backend.dto.UsuarioDTO;
-import hotelbao.backend.dto.UsuarioInsertDTO;
+import hotelbao.backend.dto.*;
 import hotelbao.backend.entity.Role;
 import hotelbao.backend.repository.RoleRepository;
 import hotelbao.backend.resource.UsuarioResource;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.NumberFormat;
 import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,6 +27,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class OpcoesMenuAdmin {
     private final RoleRepository roleRepository;
     private final String USUARIO_URL_PATH = "/usuario";
+    private final String ESTADIA_URL_PATH = "/estadia";
 
     @Autowired
     public OpcoesMenuAdmin(RoleRepository roleRepository) {
@@ -394,7 +394,66 @@ public class OpcoesMenuAdmin {
 
     /* TODO: função getEstadia */
 
-    public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        Locale real = Locale.of("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(real);
+
+        System.out.print("Digite o login do cliente que deseja emitir a nota fiscal: ");
+        String login = scanner.nextLine();
+
+        UsuarioDTO cliente = getCliente(login, jwtToken, urlBase, restTemplate);
+        if (cliente == null) {
+            System.out.println("Usuário não existe/problema na requisição.");
+            return;
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = String.format("%s/%s/nota-fiscal/%d", urlBase, ESTADIA_URL_PATH, cliente.getId());
+
+            ResponseEntity<NotaFiscalDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, NotaFiscalDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                NotaFiscalDTO notaFiscal = resposta.getBody();
+
+                System.out.println("==========================================");
+                System.out.println("NOTA FISCAL");
+                System.out.println("==========================================");
+                System.out.println("Nome: " + notaFiscal.getCliente().getNome());
+                System.out.println("Telefone: " + notaFiscal.getCliente().getTelefone());
+                System.out.println("==========================================");
+                System.out.println("ESTADIAS");
+                System.out.println("==========================================");
+
+                for (EstadiaDTO estadia : notaFiscal.getEstadias()) {
+                    System.out.println("Quarto: " + estadia.getQuarto().getDescricao() + "\tValor: " + nf.format(estadia.getQuarto().getValor()));
+                }
+
+                System.out.println("==========================================");
+                System.out.println("Total:\t" + nf.format(notaFiscal.getTotal()));
+                System.out.println("==========================================");
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: " + ex.getMessage());
+        }
+    }
 
     public void estadiaMaiorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro

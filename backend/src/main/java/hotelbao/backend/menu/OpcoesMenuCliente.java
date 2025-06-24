@@ -1,16 +1,16 @@
 package hotelbao.backend.menu;
 
-import hotelbao.backend.dto.NewPasswordDTO;
-import hotelbao.backend.dto.RequestTokenDTO;
-import hotelbao.backend.dto.UsuarioDTO;
-import hotelbao.backend.dto.UsuarioInsertDTO;
+import hotelbao.backend.dto.*;
 import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Scanner;
 
 @Component
@@ -18,11 +18,103 @@ public class OpcoesMenuCliente {
     @Autowired
     private OpcoesMenuAdmin menuAdmin;
 
-    public void fazerReserva (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    private final String ESTADIA_URL_PATH = "/estadia";
 
-    public void listarReservasCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void fazerReserva (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        /* Se essa ação vier do cliente, não precisamos pedir o login, mas se vier do admin, precisamos pegar os dados do cliente */
+        UsuarioDTO c = cliente;
 
-    public void estadiaMaiorValorCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+        if (cliente == null) {
+            System.out.print("Digite o login do cliente para fazer a reserva de estadia: ");
+            String login = scanner.nextLine();
+
+            c = menuAdmin.getCliente(login, jwtToken, urlBase, restTemplate);
+            if (c == null) {
+                System.out.println("Usuário não existe/problema na requisição.");
+                return;
+            }
+        }
+
+        /* TODO: consulta que retorna se um quarto está reservado para um dia específico */
+    }
+
+    public void listarReservasCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        System.out.println("================================================");
+        System.out.println("LISTAGEM DE ESTADIAS CADASTRADAS DE CLIENTE");
+        System.out.println("================================================");
+        System.out.println("Deseja realmente imprimir o relatório? (S/N): ");
+        String imprimir = scanner.nextLine();
+
+        if (!imprimir.equalsIgnoreCase("S")) return;
+
+        /* Se essa ação vier do cliente, não precisamos pedir o login, mas se vier do admin, precisamos pegar os dados do cliente */
+        UsuarioDTO c = cliente;
+
+        if (cliente == null) {
+            System.out.print("Digite o login do cliente para fazer a reserva de estadia: ");
+            String login = scanner.nextLine();
+
+            c = menuAdmin.getCliente(login, jwtToken, urlBase, restTemplate);
+            if (c == null) {
+                System.out.println("Usuário não existe/problema na requisição.");
+                return;
+            }
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = String.format("%s/%s/cliente/%d", urlBase, ESTADIA_URL_PATH, c.getId());
+
+            ResponseEntity<List<EstadiaDTO>> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, new ParameterizedTypeReference<List<EstadiaDTO>>() {}
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                List<EstadiaDTO> todasEstadias = resposta.getBody();
+
+                if (todasEstadias.isEmpty()) {
+                    System.out.println("Não existem estadias cadastradas no sistema para esse cliente!");
+                } else {
+                    System.out.printf(
+                            "%-40s %-15s %-15s%n",
+                            "Quarto", "Entrada", "Saída"
+                    );
+                    System.out.println("---------------------------------------------------------------------------------------");
+
+                    todasEstadias.forEach(estadia -> {
+                        System.out.printf(
+                                "%-40s %-15s %-15s%n",
+                                estadia.getQuarto().getDescricao(),
+                                estadia.getDataEntrada().format(formatter),
+                                estadia.getDataSaida().format(formatter)
+                        );
+                    });
+                }
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: " + ex.getMessage());
+        }
+    }
+
+    public void estadiaMaiorValorCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+    }
 
     public void estadiaMenorValorCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 

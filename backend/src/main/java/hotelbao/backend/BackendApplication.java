@@ -110,11 +110,18 @@ public class BackendApplication {
 
 					switch (opcao) {
 						case 1 -> {}
-						case 2 -> {}
+						case 2 -> {
+							menuCliente.listarReservasCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 3 -> {}
 						case 4 -> {}
 						case 5 -> {}
 						case 6 -> {
+							menuAdmin.emitirNotaFiscal(scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 7 -> {
 							menuCliente.recuperarSenha(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
@@ -247,7 +254,7 @@ public class BackendApplication {
 							menuAdmin.totalEstadiasCliente(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
-						case 0 -> emExecucao = false;
+						case 0 -> System.exit(0);
 						default -> {
 							System.out.println("=== OPÇÃO INVÁLIDA ===");
 							pausar();
@@ -330,7 +337,6 @@ public class BackendApplication {
 					);
 
 					usuarioLogado = userResp.getBody();
-					System.out.println(usuarioLogado);
 
 					return true;
 				} else {
@@ -391,7 +397,8 @@ public class BackendApplication {
 			System.out.println("3 - Relatório - Estadia de maior valor");
 			System.out.println("4 - Relatório - Estadia de menor valor");
 			System.out.println("5 - Relatório - Totalizar as estadias");
-			System.out.println("6 - Recuperar senha");
+			System.out.println("6 - Emitir nota fiscal");
+			System.out.println("7 - Recuperar senha");
 			System.out.println("0 - Sair");
 		}
 	}

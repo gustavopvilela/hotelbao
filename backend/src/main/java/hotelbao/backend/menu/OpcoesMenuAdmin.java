@@ -1,11 +1,10 @@
 package hotelbao.backend.menu;
 
-import hotelbao.backend.dto.QuartoDTO;
-import hotelbao.backend.dto.RoleDTO;
-import hotelbao.backend.dto.UsuarioDTO;
-import hotelbao.backend.dto.UsuarioInsertDTO;
+import hotelbao.backend.dto.*;
 import hotelbao.backend.entity.Role;
+import hotelbao.backend.exceptions.ResourceNotFound;
 import hotelbao.backend.repository.RoleRepository;
+import hotelbao.backend.resource.EstadiaResource;
 import hotelbao.backend.resource.UsuarioResource;
 import hotelbao.backend.service.QuartoService;
 import hotelbao.backend.util.RestResponsePage;
@@ -21,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -31,6 +32,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class OpcoesMenuAdmin {
     private final RoleRepository roleRepository;
     private final String USUARIO_URL_PATH = "/usuario";
+    private final String ESTADIA_URL_PATH = "/estadia";
     private final QuartoService quartoService;
 
     @Autowired
@@ -115,8 +117,19 @@ public class OpcoesMenuAdmin {
             if (todosClientes.isEmpty()) {
                 System.out.println("Não existem clientes cadastrados no sistema!");
             } else {
+                System.out.printf(
+                        "%-7s %-40s %-20s%n",
+                        "ID", "Nome", "Telefone"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+
                 todosClientes.forEach(cliente -> {
-                    System.out.println("Cliente: - Código: " + cliente.getId() + " Nome: " + cliente.getNome());
+                    System.out.printf(
+                            "%-7s %-40s %-20s%n",
+                            cliente.getId(),
+                            cliente.getNome(),
+                            cliente.getTelefone()
+                    );
                 });
             }
         }
@@ -233,7 +246,110 @@ public class OpcoesMenuAdmin {
         }
     }
 
-    public void listarTodasEstadias(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void listarTodasEstadias(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        int page = 0, size = 50;
+        List<EstadiaDTO> todasEstadias = new ArrayList<>();
+        boolean temMaisPaginas = true;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        try {
+            /* Colocando o bearer token na requisição */
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            HttpEntity<String> requisicao = new HttpEntity<>(headers);
+
+            System.out.println("================================");
+            System.out.println("LISTAGEM DE ESTADIAS CADASTRADAS");
+            System.out.println("================================");
+            System.out.println("Deseja realmente imprimir o relatório? (S/N): ");
+            String imprimir = scanner.nextLine();
+
+            if (!imprimir.equalsIgnoreCase("S")) return;
+
+            while (temMaisPaginas) {
+                String uri = String.format("%s/%s?page=%d&size=%d", urlBase, ESTADIA_URL_PATH, page, size);
+
+                /* Faz a chamada da requisição */
+                ResponseEntity<RestResponsePage<EstadiaDTO>> resposta = restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        requisicao,
+                        new ParameterizedTypeReference<RestResponsePage<EstadiaDTO>>() {}
+                );
+
+                if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                    Page<EstadiaDTO> estadias = resposta.getBody();
+
+                    // Adiciona os clientes da página atual à lista completa
+                    todasEstadias.addAll(estadias.getContent());
+
+                    // Verifica se há próxima página
+                    temMaisPaginas = estadias.hasNext();
+                    page++; // Incrementa para a próxima página
+
+                    PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
+                            estadias.getSize(),
+                            estadias.getNumber(),
+                            estadias.getTotalElements(),
+                            estadias.getTotalPages()
+                    );
+
+                    List<EntityModel<EstadiaDTO>> conteudo = estadias.stream()
+                            .map(EntityModel::of)
+                            .toList();
+
+                    PagedModel<EntityModel<EstadiaDTO>> pagedModel = PagedModel.of(conteudo, metadata);
+
+                    pagedModel.add(
+                            linkTo(methodOn(EstadiaResource.class)
+                                    .findAll(PageRequest.of(estadias.getNumber(), estadias.getSize()))
+                            ).withSelfRel()
+                    );
+
+                    if (estadias.hasNext()) {
+                        Pageable next = estadias.nextPageable();
+                        pagedModel.add(linkTo(methodOn(EstadiaResource.class).findAll(next)).withRel("next"));
+                    }
+                    if (estadias.hasPrevious()) {
+                        Pageable prev = estadias.previousPageable();
+                        pagedModel.add(linkTo(methodOn(EstadiaResource.class).findAll(prev)).withRel("prev"));
+                    }
+                } else {
+                    temMaisPaginas = false;
+                }
+            }
+
+            /* Imprimindo o conteúdo de TODOS os clientes */
+            if (todasEstadias.isEmpty()) {
+                System.out.println("Não existem estadias cadastradas no sistema!");
+            } else {
+                System.out.printf(
+                        "%-20s %-40s %-15s %-15s%n",
+                        "Cliente", "Quarto", "Entrada", "Saída"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+
+                todasEstadias.forEach(estadia -> {
+                    System.out.printf(
+                            "%-20s %-40s %-15s %-15s%n",
+                            estadia.getCliente().getNome(),
+                            estadia.getQuarto().getDescricao(),
+                            estadia.getDataEntrada().format(formatter),
+                            estadia.getDataSaida().format(formatter)
+                    );
+                });
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (Exception ex) {
+            System.out.println("ERRO: " + ex.getMessage());
+        }
+    }
 
     public void limparBancoDeDados (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         System.out.println("=========================");
@@ -681,7 +797,76 @@ public class OpcoesMenuAdmin {
 
     /* TODO: função getEstadia */
 
-    public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        Locale real = Locale.of("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(real);
+
+        System.out.print("Digite o login do cliente que deseja emitir a nota fiscal: ");
+        String login = scanner.nextLine();
+
+        UsuarioDTO cliente = getCliente(login, jwtToken, urlBase, restTemplate);
+        if (cliente == null) {
+            System.out.println("Usuário não existe/problema na requisição.");
+            return;
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = String.format("%s/%s/nota-fiscal/%d", urlBase, ESTADIA_URL_PATH, cliente.getId());
+
+            ResponseEntity<NotaFiscalDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, NotaFiscalDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                NotaFiscalDTO notaFiscal = resposta.getBody();
+
+                System.out.println("=================================================");
+                System.out.println("NOTA FISCAL");
+                System.out.println("=================================================");
+                System.out.println("Nome: " + notaFiscal.getCliente().getNome());
+                System.out.println("Telefone: " + notaFiscal.getCliente().getTelefone());
+                System.out.println("=================================================");
+                System.out.println("ESTADIAS");
+                System.out.println("=================================================");
+
+                System.out.printf(
+                        "%-40s %-8s%n",
+                        "Quarto", "Valor"
+                );
+                System.out.println("-------------------------------------------------");
+
+                for (EstadiaDTO estadia : notaFiscal.getEstadias()) {
+                    System.out.printf(
+                            "%-40s %-8s%n",
+                            estadia.getQuarto().getDescricao(),
+                            nf.format(estadia.getQuarto().getValor())
+                    );
+                }
+
+                System.out.println("=================================================");
+                System.out.println("Total:\t" + nf.format(notaFiscal.getTotal()));
+                System.out.println("=================================================");
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.NotFound | ResourceNotFound ex) {
+            System.out.println("404: Not Found: " + ex.getMessage());
+        }
+    }
 
     public void estadiaMaiorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro

@@ -27,11 +27,20 @@ public class Estadia {
     public Estadia() {
     }
 
-    public Estadia(Usuario usuario, Quarto quarto, LocalDate dataEntrada) {
+    public Estadia(Long id, Usuario usuario, Quarto quarto, LocalDate dataEntrada) {
+        this.id = id;
         this.usuario = usuario;
         this.quarto = quarto;
         this.dataEntrada = dataEntrada;
         this.setDataSaida(dataEntrada);
+    }
+
+    public Estadia (Estadia entity) {
+        this.id = entity.getId();
+        this.usuario = entity.getCliente();
+        this.quarto = entity.getQuarto();
+        this.dataEntrada = entity.getDataEntrada();
+        this.dataSaida = entity.getDataSaida();
     }
 
     public Long getId() {

@@ -7,6 +7,7 @@ import hotelbao.backend.dto.UsuarioInsertDTO;
 import hotelbao.backend.entity.Role;
 import hotelbao.backend.repository.RoleRepository;
 import hotelbao.backend.resource.UsuarioResource;
+import hotelbao.backend.service.QuartoService;
 import hotelbao.backend.util.RestResponsePage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -30,10 +31,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class OpcoesMenuAdmin {
     private final RoleRepository roleRepository;
     private final String USUARIO_URL_PATH = "/usuario";
+    private final QuartoService quartoService;
 
     @Autowired
-    public OpcoesMenuAdmin(RoleRepository roleRepository) {
+    public OpcoesMenuAdmin(RoleRepository roleRepository, QuartoService quartoService) {
         this.roleRepository = roleRepository;
+        this.quartoService = quartoService;
     }
 
     public void listarTodosClientes(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
@@ -128,7 +131,107 @@ public class OpcoesMenuAdmin {
         }
     }
 
-    public void listarTodosQuartos(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void listarTodosQuartos(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        int page = 0, size = 50;
+        List<QuartoDTO> todosQuartos = new ArrayList<>();
+        boolean temMaisPaginas = true;
+
+        try {
+            /* Colocando o bearer token na requisição */
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            HttpEntity<String> requisicao = new HttpEntity<>(headers);
+
+            System.out.println("================================");
+            System.out.println("LISTAGEM DE QUARTOS CADASTRADOS");
+            System.out.println("================================");
+            System.out.println("Deseja realmente imprimir o relatório? (S/N): ");
+            String apagar = scanner.nextLine();
+
+            if (!apagar.equalsIgnoreCase("S")) return;
+
+            while (temMaisPaginas) {
+                String uri = String.format("%s/%s?page=%d&size=%d", urlBase, "/quarto", page, size);
+
+                /* Faz a chamada da requisição */
+                ResponseEntity<RestResponsePage<QuartoDTO>> resposta = restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        requisicao,
+                        new ParameterizedTypeReference<RestResponsePage<QuartoDTO>>() {}
+                );
+
+                if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                    Page<QuartoDTO> quartos = resposta.getBody();
+
+                    // Adiciona os clientes da página atual à lista completa
+                    todosQuartos.addAll(quartos.getContent());
+
+                    // Verifica se há próxima página
+                    temMaisPaginas = quartos.hasNext();
+                    page++; // Incrementa para a próxima página
+
+                    PagedModel.PageMetadata metadata = new PagedModel.PageMetadata(
+                            quartos.getSize(),
+                            quartos.getNumber(),
+                            quartos.getTotalElements(),
+                            quartos.getTotalPages()
+                    );
+
+                    List<EntityModel<QuartoDTO>> conteudo = quartos.stream()
+                            .map(EntityModel::of)
+                            .toList();
+
+                    PagedModel<EntityModel<QuartoDTO>> pagedModel = PagedModel.of(conteudo, metadata);
+
+                    pagedModel.add(
+                            linkTo(methodOn(UsuarioResource.class)
+                                    .findAllClients(PageRequest.of(quartos.getNumber(), quartos.getSize()))
+                            ).withSelfRel()
+                    );
+
+                    if (quartos.hasNext()) {
+                        Pageable next = quartos.nextPageable();
+                        pagedModel.add(linkTo(methodOn(UsuarioResource.class).findAllClients(next)).withRel("next"));
+                    }
+                    if (quartos.hasPrevious()) {
+                        Pageable prev = quartos.previousPageable();
+                        pagedModel.add(linkTo(methodOn(UsuarioResource.class).findAllClients(prev)).withRel("prev"));
+                    }
+                } else {
+                    temMaisPaginas = false;
+                }
+            }
+
+            /* Imprimindo o conteúdo de TODOS os clientes */
+            if (todosQuartos.isEmpty()) {
+                System.out.println("Não existem quartos cadastrados no sistema!");
+            } else {
+                System.out.printf(
+                        "%-15s %-50s %-15s%n",
+                        "ID", "Descrição", "Valor"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+                todosQuartos.forEach(  quarto -> {
+                    System.out.printf(
+                            "%-15s %-50s %-15s%n",
+                            quarto.getId(),
+                            quarto.getDescricao(),
+                            quarto.getValor()
+                    );
+                });
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (Exception ex) {
+            System.out.println("ERRO: " + ex.getMessage());
+        }
+    }
 
     public void listarTodasEstadias(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
 

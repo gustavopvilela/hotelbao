@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Long> {
         INNER JOIN quarto q ON e.quarto_id = q.id
         WHERE e.cliente_id = :id;
     """)
-    Optional<Long> findSumOfAllClientStays (Long id); /* ID do cliente */
+    Optional<BigDecimal> findSumOfAllClientStays (Long id); /* ID do cliente */
 
     List<Estadia> findByUsuarioId (Long id);
 }

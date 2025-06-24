@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface QuartoRepository extends JpaRepository<Quarto, Long> {
+    void deleteAll ();
 }

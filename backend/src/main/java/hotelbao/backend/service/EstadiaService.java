@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -100,8 +101,8 @@ public class EstadiaService {
     }
 
     @Transactional(readOnly = true)
-    public Long totalEstadiasCliente (Long id) {
-        Optional<Long> opt = estadiaRepository.findSumOfAllClientStays(id);
+    public BigDecimal totalEstadiasCliente (Long id) {
+        Optional<BigDecimal> opt = estadiaRepository.findSumOfAllClientStays(id);
         return opt.orElseThrow(() -> new ResourceNotFound("Não há estadias"));
     }
 
@@ -141,7 +142,7 @@ public class EstadiaService {
     public NotaFiscalDTO emitirNotaFiscal (Long id) {
         List<EstadiaDTO> estadias = this.findByClienteId(id);
         UsuarioDTO cliente = usuarioService.findById(id);
-        Long total = this.totalEstadiasCliente(id);
+        BigDecimal total = this.totalEstadiasCliente(id);
 
         return new NotaFiscalDTO(cliente, estadias, total);
     }

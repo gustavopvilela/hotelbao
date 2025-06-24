@@ -15,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -189,9 +190,9 @@ public class EstadiaResource {
         }
     )
     @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENTE')")
-    public ResponseEntity<Map<String, Long>> totalEstadiasCliente (@PathVariable Long id) {
-        Long total = estadiaService.totalEstadiasCliente(id);
-        Map<String, Long> resposta = Map.of("valor_total_estadias", total);
+    public ResponseEntity<Map<String, BigDecimal>> totalEstadiasCliente (@PathVariable Long id) {
+        BigDecimal total = estadiaService.totalEstadiasCliente(id);
+        Map<String, BigDecimal> resposta = Map.of("valor_total_estadias", total);
         return ResponseEntity.ok().body(resposta);
     }
 

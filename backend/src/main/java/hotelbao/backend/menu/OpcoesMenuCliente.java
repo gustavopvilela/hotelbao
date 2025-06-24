@@ -9,8 +9,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Scanner;
 
 @Component
@@ -114,11 +118,187 @@ public class OpcoesMenuCliente {
     }
 
     public void estadiaMaiorValorCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        Locale real = Locale.of("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(real);
+
+        /* Se essa ação vier do cliente, não precisamos pedir o login, mas se vier do admin, precisamos pegar os dados do cliente */
+        UsuarioDTO c = cliente;
+
+        if (cliente == null) {
+            System.out.print("Digite o login do cliente para fazer a reserva de estadia: ");
+            String login = scanner.nextLine();
+
+            c = menuAdmin.getCliente(login, jwtToken, urlBase, restTemplate);
+            if (c == null) {
+                System.out.println("Usuário não existe/problema na requisição.");
+                return;
+            }
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = String.format("%s/%s/maior/%d", urlBase, ESTADIA_URL_PATH, c.getId());
+
+            ResponseEntity<EstadiaDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, EstadiaDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                EstadiaDTO estadia = resposta.getBody();
+
+                System.out.printf(
+                        "%-40s %-15s %-15s %-10s%n",
+                        "Quarto", "Entrada", "Saída", "Valor"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+
+                System.out.printf(
+                        "%-40s %-15s %-15s %-10s%n",
+                        estadia.getQuarto().getDescricao(),
+                        estadia.getDataEntrada().format(formatter),
+                        estadia.getDataSaida().format(formatter),
+                        nf.format(estadia.getQuarto().getValor())
+                );
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: " + ex.getMessage());
+        }
     }
 
-    public void estadiaMenorValorCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void estadiaMenorValorCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        Locale real = Locale.of("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(real);
 
-    public void totalEstadiasCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+        /* Se essa ação vier do cliente, não precisamos pedir o login, mas se vier do admin, precisamos pegar os dados do cliente */
+        UsuarioDTO c = cliente;
+
+        if (cliente == null) {
+            System.out.print("Digite o login do cliente para fazer a reserva de estadia: ");
+            String login = scanner.nextLine();
+
+            c = menuAdmin.getCliente(login, jwtToken, urlBase, restTemplate);
+            if (c == null) {
+                System.out.println("Usuário não existe/problema na requisição.");
+                return;
+            }
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = String.format("%s/%s/menor/%d", urlBase, ESTADIA_URL_PATH, c.getId());
+
+            ResponseEntity<EstadiaDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, EstadiaDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                EstadiaDTO estadia = resposta.getBody();
+
+                System.out.printf(
+                        "%-40s %-15s %-15s %-10s%n",
+                        "Quarto", "Entrada", "Saída", "Valor"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+
+                System.out.printf(
+                        "%-40s %-15s %-15s %-10s%n",
+                        estadia.getQuarto().getDescricao(),
+                        estadia.getDataEntrada().format(formatter),
+                        estadia.getDataSaida().format(formatter),
+                        nf.format(estadia.getQuarto().getValor())
+                );
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: " + ex.getMessage());
+        }
+    }
+
+    public void totalEstadiasCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        Locale real = Locale.of("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(real);
+
+        /* Se essa ação vier do cliente, não precisamos pedir o login, mas se vier do admin, precisamos pegar os dados do cliente */
+        UsuarioDTO c = cliente;
+
+        if (cliente == null) {
+            System.out.print("Digite o login do cliente para fazer a reserva de estadia: ");
+            String login = scanner.nextLine();
+
+            c = menuAdmin.getCliente(login, jwtToken, urlBase, restTemplate);
+            if (c == null) {
+                System.out.println("Usuário não existe/problema na requisição.");
+                return;
+            }
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = String.format("%s/%s/total/%d", urlBase, ESTADIA_URL_PATH, c.getId());
+
+            ResponseEntity<Map<String, BigDecimal>> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, new ParameterizedTypeReference<Map<String, BigDecimal>>() {}
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
+                Map<String, BigDecimal> total = resposta.getBody();
+
+                System.out.printf(
+                        "%-50s %-20s%n",
+                        "Valor total das estadias de " + c.getNome(), nf.format(total.get("valor_total_estadias"))
+                );
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: " + ex.getMessage());
+        }
+    }
 
     public void recuperarSenha (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         System.out.println("=== O sistema entrará em timeout para o envio do e-mail, favor esperar!");

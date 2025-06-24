@@ -1,9 +1,6 @@
 package hotelbao.backend.service;
 
-import hotelbao.backend.repository.EstadiaRepository;
-import hotelbao.backend.repository.PasswordRecoverRepository;
-import hotelbao.backend.repository.RoleRepository;
-import hotelbao.backend.repository.UsuarioRepository;
+import hotelbao.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +11,7 @@ public class DatabaseService {
     @Autowired private RoleRepository roleRepository;
     @Autowired private PasswordRecoverRepository passwordRecoverRepository;
     @Autowired private EstadiaRepository estadiaRepository;
-    /* TODO: adicionar o de quartos aqui. */
+    @Autowired private QuartoRepository quartoRepository;
 
     @Transactional
     public void limparBancoDeDados () {
@@ -22,5 +19,6 @@ public class DatabaseService {
         roleRepository.deleteAll();
         passwordRecoverRepository.deleteAll();
         estadiaRepository.deleteAll();
+        quartoRepository.deleteAll();
     }
 }

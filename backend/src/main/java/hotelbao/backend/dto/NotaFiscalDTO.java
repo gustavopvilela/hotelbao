@@ -1,13 +1,14 @@
 package hotelbao.backend.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class NotaFiscalDTO {
     UsuarioDTO cliente;
     List<EstadiaDTO> estadias;
-    Long total;
+    private BigDecimal total;
 
-    public NotaFiscalDTO(UsuarioDTO cliente, List<EstadiaDTO> estadias, Long total) {
+    public NotaFiscalDTO(UsuarioDTO cliente, List<EstadiaDTO> estadias, BigDecimal total) {
         this.cliente = cliente;
         this.estadias = estadias;
         this.total = total;
@@ -31,11 +32,11 @@ public class NotaFiscalDTO {
         this.estadias = estadias;
     }
 
-    public Long getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(Long total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 

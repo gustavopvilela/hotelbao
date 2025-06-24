@@ -113,8 +113,19 @@ public class OpcoesMenuAdmin {
             if (todosClientes.isEmpty()) {
                 System.out.println("Não existem clientes cadastrados no sistema!");
             } else {
+                System.out.printf(
+                        "%-7s %-40s %-20s%n",
+                        "ID", "Nome", "Telefone"
+                );
+                System.out.println("---------------------------------------------------------------------------------------");
+
                 todosClientes.forEach(cliente -> {
-                    System.out.println("Cliente: - Código: " + cliente.getId() + " Nome: " + cliente.getNome());
+                    System.out.printf(
+                            "%-7s %-40s %-20s%n",
+                            cliente.getId(),
+                            cliente.getNome(),
+                            cliente.getTelefone()
+                    );
                 });
             }
         }
@@ -529,22 +540,32 @@ public class OpcoesMenuAdmin {
             if (resposta.getStatusCode() == HttpStatus.OK && resposta.getBody() != null) {
                 NotaFiscalDTO notaFiscal = resposta.getBody();
 
-                System.out.println("==========================================");
+                System.out.println("=================================================");
                 System.out.println("NOTA FISCAL");
-                System.out.println("==========================================");
+                System.out.println("=================================================");
                 System.out.println("Nome: " + notaFiscal.getCliente().getNome());
                 System.out.println("Telefone: " + notaFiscal.getCliente().getTelefone());
-                System.out.println("==========================================");
+                System.out.println("=================================================");
                 System.out.println("ESTADIAS");
-                System.out.println("==========================================");
+                System.out.println("=================================================");
+
+                System.out.printf(
+                        "%-40s %-8s%n",
+                        "Quarto", "Valor"
+                );
+                System.out.println("-------------------------------------------------");
 
                 for (EstadiaDTO estadia : notaFiscal.getEstadias()) {
-                    System.out.println("Quarto: " + estadia.getQuarto().getDescricao() + "\tValor: " + nf.format(estadia.getQuarto().getValor()));
+                    System.out.printf(
+                            "%-40s %-8s%n",
+                            estadia.getQuarto().getDescricao(),
+                            nf.format(estadia.getQuarto().getValor())
+                    );
                 }
 
-                System.out.println("==========================================");
+                System.out.println("=================================================");
                 System.out.println("Total:\t" + nf.format(notaFiscal.getTotal()));
-                System.out.println("==========================================");
+                System.out.println("=================================================");
             }
         }
         catch (HttpClientErrorException.Forbidden ex) {

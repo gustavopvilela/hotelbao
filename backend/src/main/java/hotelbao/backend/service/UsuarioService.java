@@ -133,8 +133,6 @@ public class UsuarioService implements UserDetailsService {
             usuario.addRole(new Role(p.getRoleId(), p.getAuthority()));
         }
 
-        System.out.println(usuario);
-
         return usuario;
     }
 

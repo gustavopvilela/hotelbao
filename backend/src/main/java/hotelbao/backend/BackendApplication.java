@@ -110,7 +110,10 @@ public class BackendApplication {
 
 					switch (opcao) {
 						case 1 -> {}
-						case 2 -> {}
+						case 2 -> {
+							menuCliente.listarReservasCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 3 -> {}
 						case 4 -> {}
 						case 5 -> {}
@@ -251,7 +254,7 @@ public class BackendApplication {
 							menuAdmin.totalEstadiasCliente(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
-						case 0 -> emExecucao = false;
+						case 0 -> System.exit(0);
 						default -> {
 							System.out.println("=== OPÇÃO INVÁLIDA ===");
 							pausar();
@@ -334,7 +337,6 @@ public class BackendApplication {
 					);
 
 					usuarioLogado = userResp.getBody();
-					System.out.println(usuarioLogado);
 
 					return true;
 				} else {

@@ -2,6 +2,7 @@ package hotelbao.backend.menu;
 
 import hotelbao.backend.dto.*;
 import hotelbao.backend.entity.Role;
+import hotelbao.backend.exceptions.ResourceNotFound;
 import hotelbao.backend.repository.RoleRepository;
 import hotelbao.backend.resource.EstadiaResource;
 import hotelbao.backend.resource.UsuarioResource;
@@ -555,7 +556,7 @@ public class OpcoesMenuAdmin {
         catch (HttpClientErrorException.BadRequest ex) {
             System.out.println("401: Bad Request: " + ex.getMessage());
         }
-        catch (HttpClientErrorException.NotFound ex) {
+        catch (HttpClientErrorException.NotFound | ResourceNotFound ex) {
             System.out.println("404: Not Found: " + ex.getMessage());
         }
     }

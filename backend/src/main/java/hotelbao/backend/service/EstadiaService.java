@@ -70,7 +70,6 @@ public class EstadiaService {
     @Transactional
     public EstadiaDTO insert (EstadiaDTO dto) {
         Estadia entity = new Estadia();
-
         this.copiarDTOParaEntidade(dto, entity);
         Estadia nova = estadiaRepository.save(entity);
         return new EstadiaDTO(nova)

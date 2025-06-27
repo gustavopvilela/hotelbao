@@ -118,9 +118,18 @@ public class BackendApplication {
 							menuCliente.listarReservasCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
-						case 3 -> {}
-						case 4 -> {}
-						case 5 -> {}
+						case 3 -> { /* Estadia de maior valor do cliente */
+							menuCliente.estadiaMaiorValorCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 4 -> { /* Estadia de menor valor do cliente */
+							menuCliente.estadiaMenorValorCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
+						case 5 -> { /* Valor total de estadias do cliente */
+							menuCliente.totalEstadiasCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 6 -> {
 							menuAdmin.emitirNotaFiscal(scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
@@ -247,15 +256,15 @@ public class BackendApplication {
 							pausar();
 						}
 						case 9 -> { /* Estadia de maior valor do cliente */
-							menuAdmin.estadiaMaiorValorCliente(scanner, jwtToken, URL_BASE, restTemplate);
+							menuCliente.estadiaMaiorValorCliente(null, scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
 						case 10 -> { /* Estadia de menor valor do cliente */
-							menuAdmin.estadiaMenorValorCliente(scanner, jwtToken, URL_BASE, restTemplate);
+							menuCliente.estadiaMenorValorCliente(null, scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
 						case 11 -> { /* Valor total de estadias do cliente */
-							menuAdmin.totalEstadiasCliente(scanner, jwtToken, URL_BASE, restTemplate);
+							menuCliente.totalEstadiasCliente(null, scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
 						}
 						case 0 -> System.exit(0);

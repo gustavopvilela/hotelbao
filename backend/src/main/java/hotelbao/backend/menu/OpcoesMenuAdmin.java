@@ -1116,19 +1116,4 @@ public class OpcoesMenuAdmin {
             System.out.println("404: Not Found: " + ex.getMessage());
         }
     }
-
-    public void estadiaMaiorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
-        /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro
-        *   na função no arquivo MenuOpcoesCliente.java */
-    }
-
-    public void estadiaMenorValorCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
-        /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro
-         *   na função no arquivo MenuOpcoesCliente.java */
-    }
-
-    public void totalEstadiasCliente(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
-        /* TODO: aqui, recebe só o login do cliente e depois passa o resultado como parâmetro
-         *   na função no arquivo MenuOpcoesCliente.java */
-    }
 }

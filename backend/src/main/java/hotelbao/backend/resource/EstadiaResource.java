@@ -17,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -173,6 +174,24 @@ public class EstadiaResource {
     @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENTE')")
     public ResponseEntity<EstadiaDTO> findEstadiaDeMenorValorByClienteId (@PathVariable Long id) {
         EstadiaDTO estadia = estadiaService.findEstadiaDeMenorValorByClienteId(id);
+        return ResponseEntity.ok().body(estadia);
+    }
+
+    @GetMapping("/{data}/{quarto_id}")
+    @Operation(
+            description = "Retorna se já existe uma estadia no data dada pelo cliente",
+            summary = "Retorna se existe estadia na dada data.",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "Not found", responseCode = "404")
+            }
+    )
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN','ROLE_CLIENTE')")
+    public ResponseEntity<Boolean> estadiaExisteEmDadaData (@PathVariable LocalDate data, @PathVariable Long quarto_id) {
+        Boolean estadia = estadiaService.estadiaExisteEmDadaData(data, quarto_id);
         return ResponseEntity.ok().body(estadia);
     }
 

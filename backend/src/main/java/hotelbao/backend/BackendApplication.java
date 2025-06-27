@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hotelbao.backend.dto.UsuarioDTO;
 import hotelbao.backend.menu.OpcoesMenuAdmin;
 import hotelbao.backend.menu.OpcoesMenuCliente;
+import jakarta.validation.constraints.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -109,7 +110,10 @@ public class BackendApplication {
 					opcao = lerOpcao();
 
 					switch (opcao) {
-						case 1 -> {}
+						case 1 -> {
+							menuCliente.fazerReserva(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
+							pausar();
+						}
 						case 2 -> {
 							menuCliente.listarReservasCliente(usuarioLogado, scanner, jwtToken, URL_BASE, restTemplate);
 							pausar();
@@ -208,7 +212,7 @@ public class BackendApplication {
 
 								switch (opcaoInterna) {
 									case 1 -> {
-										menuAdmin.inserirEstadia(scanner, jwtToken, URL_BASE, restTemplate);
+										menuCliente.fazerReserva(null, scanner, jwtToken, URL_BASE, restTemplate);
 										pausar();
 									}
 									case 2 -> {

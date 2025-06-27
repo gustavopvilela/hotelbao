@@ -1,6 +1,9 @@
 package hotelbao.backend.menu;
 
 import hotelbao.backend.dto.*;
+import hotelbao.backend.entity.Estadia;
+import hotelbao.backend.entity.Quarto;
+import hotelbao.backend.service.EstadiaService;
 import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,10 +11,13 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import hotelbao.backend.menu.OpcoesMenuAdmin.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.text.NumberFormat;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,6 +27,7 @@ import java.util.Scanner;
 public class OpcoesMenuCliente {
     @Autowired
     private OpcoesMenuAdmin menuAdmin;
+    private EstadiaService estadiaService;
 
     private final String ESTADIA_URL_PATH = "/estadia";
 
@@ -28,7 +35,7 @@ public class OpcoesMenuCliente {
         /* Se essa ação vier do cliente, não precisamos pedir o login, mas se vier do admin, precisamos pegar os dados do cliente */
         UsuarioDTO c = cliente;
 
-        if (cliente == null) {
+        if (c == null) {
             System.out.print("Digite o login do cliente para fazer a reserva de estadia: ");
             String login = scanner.nextLine();
 
@@ -38,8 +45,110 @@ public class OpcoesMenuCliente {
                 return;
             }
         }
+        LocalDate data = null;
+        boolean reservou = false;
+        QuartoDTO q = new QuartoDTO();
+        while (!reservou) {
+            System.out.println("Digite o ID do quarto que deseja reservar: ");
+            Long id = scanner.nextLong();
+            q = menuAdmin.getQuarto(id, jwtToken, urlBase, restTemplate);
+            scanner.nextLine();
+            q.setId(id);
 
-        /* TODO: consulta que retorna se um quarto está reservado para um dia específico */
+            String entrada = "";
+
+            boolean dataCerta = false;
+            try{
+                do{
+                    System.out.println("Digite a data que deseja reservar (YYYY-MM-DD): ");
+                    entrada = scanner.nextLine();
+                    data = LocalDate.parse(entrada);
+                    if (data.isBefore(LocalDate.now())) {
+                        System.out.println("A data não pode ser antes de hoje.");
+                    } else {
+                        dataCerta = true;
+                    }
+                } while (!dataCerta);
+            } catch (DateTimeParseException d){
+                System.out.println("A data foi escrita no formato errado.");
+            }
+
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(jwtToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+                String uri = urlBase + ESTADIA_URL_PATH + "/" + data + "/" + id;
+                ResponseEntity<Boolean> resposta = restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        requisicao,
+                        Boolean.class
+                );
+
+                if (resposta.getStatusCode() == HttpStatus.OK) {
+                    if (resposta.getBody() == true) {
+                        System.out.println("A data" + entrada + " no quarto " + id + "não está disponível para reservas.");
+                        System.out.println("Deseja escolher uma nova data? (S/N): ");
+                        String escolha = scanner.nextLine();
+                        if(escolha.equalsIgnoreCase("n")) {
+                            return;
+                        }
+                    } else {
+                        reservou = true;
+                    }
+                }
+
+            }
+            catch (HttpClientErrorException.Forbidden ex) {
+                System.out.println("403: Forbidden: " + ex.getMessage());
+            }
+            catch (HttpClientErrorException.Unauthorized ex) {
+                System.out.println("401: Unauthorized: " + ex.getMessage());
+            }
+            catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("401: Bad Request: " + ex.getMessage());
+            }
+
+        }
+        EstadiaDTO novaEstadia = new EstadiaDTO();
+
+        novaEstadia.setDataEntrada(data);
+        assert data != null;
+        novaEstadia.setDataSaida(data.plusDays(1));
+        novaEstadia.setQuarto(q);
+        novaEstadia.setCliente(c);
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<EstadiaDTO> requisicao = new HttpEntity<>(novaEstadia, headers);
+
+            String uri = urlBase + ESTADIA_URL_PATH;
+            ResponseEntity<EstadiaDTO> resposta = restTemplate.exchange(
+                    uri,
+                    HttpMethod.POST,
+                    requisicao,
+                    EstadiaDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.CREATED) {
+                System.out.println("=== Reserva criada com sucesso! ===");
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: " + ex.getMessage());
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("401: Bad Request: " + ex.getMessage());
+        }
     }
 
     public void listarReservasCliente (UsuarioDTO cliente, Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {

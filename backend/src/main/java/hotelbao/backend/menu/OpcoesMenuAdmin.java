@@ -21,8 +21,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.math.BigDecimal;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -787,15 +789,262 @@ public class OpcoesMenuAdmin {
         return null;
     }
 
-    public void inserirEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+    public void alterarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
 
-    public void alterarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+        long id;
+        EstadiaDTO estadia;
 
-    public void deletarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+        while (true) {
 
-    public void visualizarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {}
+            System.out.println("Digite o id da estadia que deseja modificar: ");
+            id = scanner.nextLong();
+            scanner.nextLine();
 
-    /* TODO: função getEstadia */
+            estadia = getEstadia(id, jwtToken, urlBase, restTemplate);
+            if (estadia == null) {
+                System.out.println("Esse id não existe.\nDeseja digitar outro id? (S/N)");
+                String escolha = scanner.nextLine();
+                if (escolha.equalsIgnoreCase("n")) {
+                    return;
+                }
+            } else  {
+                break;
+            }
+        }
+
+        System.out.println("Digite 0 para manter os dados atuais");
+
+        while (true){
+            System.out.print("Id do quarto atual: " + estadia.getQuarto().getId() + "\nId do novo quarto: ");
+            long novoQuarto = scanner.nextLong();
+            scanner.nextLine();
+            if (novoQuarto == 0) {
+               break;
+            }
+
+            QuartoDTO quarto = getQuarto(novoQuarto, jwtToken, urlBase, restTemplate);
+            if (quarto != null) {
+                estadia.setQuarto(quarto);
+                break;
+            } else {
+                System.out.println("Quarto não existe, deseja escolher outro quarto? (S/N)");
+                if (scanner.nextLine().equalsIgnoreCase("n")) {
+                    return;
+                }
+            }
+        }
+
+        while (true){
+            System.out.print("Data de entrada atual: " + estadia.getDataEntrada() + "\nNova data de entrada: ");
+            String entrada = scanner.nextLine();
+
+            if (entrada.equals("0")){
+                break;
+            }
+
+            LocalDate dataEntrada;
+            try{
+                dataEntrada = LocalDate.parse(entrada);
+                if(dataEntrada.isBefore(LocalDate.now())){
+                    System.out.println("A data de entrada não pode ser anterior a hoje.");
+                    continue;
+                }
+            } catch (DateTimeParseException d){
+                System.out.println("A data foi escrita no formato errado.");
+                continue;
+            }
+
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setBearerAuth(jwtToken);
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+                Long idQuarto = estadia.getQuarto().getId();
+
+                String uri = urlBase + ESTADIA_URL_PATH + "/" + dataEntrada + "/" + idQuarto;
+                ResponseEntity<Boolean> resposta = restTemplate.exchange(
+                        uri,
+                        HttpMethod.GET,
+                        requisicao,
+                        Boolean.class
+                );
+
+                if (resposta.getStatusCode() == HttpStatus.OK) {
+                    if (resposta.getBody() == true) {
+                        System.out.println("A data" + entrada + " no quarto " + idQuarto + "não está disponível para reservas.");
+                        System.out.println("Deseja escolher uma nova data? (S/N): ");
+                        String escolha = scanner.nextLine();
+                        if(escolha.equalsIgnoreCase("n")) {
+                            return;
+                        }
+                    } else {
+                        estadia.setDataEntrada(dataEntrada);
+                        estadia.setDataSaida(dataEntrada.plusDays(1));
+                        break;
+                    }
+                }
+
+            } catch (HttpClientErrorException.Forbidden ex) {
+                System.out.println("403: Forbidden: " + ex.getMessage());
+            }
+            catch (HttpClientErrorException.Unauthorized ex) {
+                System.out.println("401: Unauthorized: " + ex.getMessage());
+            }
+            catch (HttpClientErrorException.BadRequest ex) {
+                System.out.println("401: Bad Request: " + ex.getMessage());
+            }
+
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<EstadiaDTO> requisicao = new HttpEntity<>(estadia, headers);
+
+            String uri = urlBase + "/estadia/" + id;
+
+            ResponseEntity<EstadiaDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.PUT, requisicao, EstadiaDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK) {
+                System.out.println("=== Estadia atualizada com sucesso! ===");
+            }
+        }
+        catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden - Sem permissão para atualizar.");
+        }
+        catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized - Token inválido ou expirado.");
+        }
+        catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("400: Bad Request - Erro na requisição.");
+        }
+        catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found - Estadia não encontrada.");
+        }
+
+    }
+
+    public void deletarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        System.out.print("Digite o id da estadia que deseja deletar: ");
+        Long id = scanner.nextLong();
+        scanner.nextLine();
+
+        EstadiaDTO estadia = getEstadia(id, jwtToken, urlBase, restTemplate);
+
+        if (estadia == null) {
+            System.out.println("Estadia não existe ou houve problema na requisição.");
+            return;
+        }
+
+        System.out.print("Tem certeza que deseja excluir a estadia: " + estadia.getId() + "? (S/N): ");
+        String deletar = scanner.nextLine();
+
+        if (!deletar.equalsIgnoreCase("S")) {
+            System.out.println("Operação cancelada.");
+            return;
+        }
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = urlBase + "/estadia/" + estadia.getId();
+
+            ResponseEntity<Void> resposta = restTemplate.exchange(
+                    uri, HttpMethod.DELETE, requisicao, Void.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.NO_CONTENT) {
+                System.out.println("=== Estadia deletada com sucesso! ===");
+            }
+        } catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden: Sem permissão para deletar.");
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized: Token inválido ou ausente.");
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("400: Bad Request: Verifique os dados enviados.");
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found: Estadia com ID " + id + " não encontrado.");
+        }
+    }
+
+    public void visualizarEstadia (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+
+        EstadiaDTO estadia;
+        while (true){
+            System.out.println("Informe o Id da estadia que deseja visualizar: ");
+            Long id = scanner.nextLong();
+            scanner.nextLine();
+            estadia = getEstadia(id, jwtToken, urlBase, restTemplate);
+            if (estadia == null) {
+                System.out.println("Esse id não existe.\nDeseja digitar outro id? (S/N)");
+                String escolha = scanner.nextLine();
+                if (escolha.equalsIgnoreCase("n")) {
+                    return;
+                }
+
+            } else  {
+                break;
+            }
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        System.out.printf(
+                "%-20s %-40s %-15s %-15s%n",
+                "Cliente", "Quarto", "Entrada", "Saída"
+        );
+        System.out.println("---------------------------------------------------------------------------------------");
+        System.out.printf(
+                "%-20s %-40s %-15s %-15s%n",
+                estadia.getCliente().getNome(),
+                estadia.getQuarto().getDescricao(),
+                estadia.getDataEntrada().format(formatter),
+                estadia.getDataSaida().format(formatter)
+        );
+
+    }
+
+    public EstadiaDTO getEstadia (Long id, String jwtToken, String urlBase, RestTemplate restTemplate) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            if (jwtToken != null) headers.setBearerAuth(jwtToken);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Void> requisicao = new HttpEntity<>(headers);
+
+            String uri = urlBase + ESTADIA_URL_PATH + "/" + id;
+
+            ResponseEntity<EstadiaDTO> resposta = restTemplate.exchange(
+                    uri, HttpMethod.GET, requisicao, EstadiaDTO.class
+            );
+
+            if (resposta.getStatusCode() == HttpStatus.OK) {
+                return resposta.getBody();
+            } else {
+                System.out.println("Erro inesperado: status " + resposta.getStatusCode());
+                return null;
+            }
+        } catch (HttpClientErrorException.Forbidden ex) {
+            System.out.println("403: Forbidden - Sem permissão para acessar esse recurso.");
+        } catch (HttpClientErrorException.Unauthorized ex) {
+            System.out.println("401: Unauthorized - Token inválido ou ausente.");
+        } catch (HttpClientErrorException.BadRequest ex) {
+            System.out.println("400: Bad Request - Verifique os dados enviados.");
+        } catch (HttpClientErrorException.NotFound ex) {
+            System.out.println("404: Not Found - Estadia com ID " + id + " não encontrado.");
+        }
+
+        return null;
+    }
 
     public void emitirNotaFiscal(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         Locale real = Locale.of("pt", "BR");

@@ -15,7 +15,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -175,6 +177,24 @@ public class EstadiaResource {
         return ResponseEntity.ok().body(estadia);
     }
 
+    @GetMapping("/{data}/{quarto_id}")
+    @Operation(
+            description = "Retorna se já existe uma estadia no data dada pelo cliente",
+            summary = "Retorna se existe estadia na dada data.",
+            responses = {
+                    @ApiResponse(description = "OK", responseCode = "200"),
+                    @ApiResponse(description = "Bad Request", responseCode = "400"),
+                    @ApiResponse(description = "Unauthorized", responseCode = "401"),
+                    @ApiResponse(description = "Forbidden", responseCode = "403"),
+                    @ApiResponse(description = "Not found", responseCode = "404")
+            }
+    )
+    @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN','ROLE_CLIENTE')")
+    public ResponseEntity<Boolean> estadiaExisteEmDadaData (@PathVariable LocalDate data, @PathVariable Long quarto_id) {
+        Boolean estadia = estadiaService.estadiaExisteEmDadaData(data, quarto_id);
+        return ResponseEntity.ok().body(estadia);
+    }
+
 
     @GetMapping(value = "/total/{id}", produces = "application/json")
     @Operation(
@@ -189,9 +209,9 @@ public class EstadiaResource {
         }
     )
     @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN', 'ROLE_CLIENTE')")
-    public ResponseEntity<Map<String, Long>> totalEstadiasCliente (@PathVariable Long id) {
-        Long total = estadiaService.totalEstadiasCliente(id);
-        Map<String, Long> resposta = Map.of("valor_total_estadias", total);
+    public ResponseEntity<Map<String, BigDecimal>> totalEstadiasCliente (@PathVariable Long id) {
+        BigDecimal total = estadiaService.totalEstadiasCliente(id);
+        Map<String, BigDecimal> resposta = Map.of("valor_total_estadias", total);
         return ResponseEntity.ok().body(resposta);
     }
 

@@ -91,7 +91,7 @@ class EstadiaResourceTest {
         notaFiscalDTO = new NotaFiscalDTO();
         notaFiscalDTO.setCliente(clienteDTO);
         notaFiscalDTO.setEstadias(Collections.singletonList(estadiaDTO));
-        notaFiscalDTO.setTotal(600L);
+        notaFiscalDTO.setTotal(BigDecimal.valueOf(600L));
     }
 
     @Test
@@ -275,7 +275,7 @@ class EstadiaResourceTest {
     @WithMockUser(authorities = "ROLE_CLIENTE")
     void totalOfClientStaysShouldReturnOneValue() throws Exception {
         // Arrange
-        when(estadiaService.totalEstadiasCliente(1L)).thenReturn(2500L);
+        when(estadiaService.totalEstadiasCliente(1L)).thenReturn(BigDecimal.valueOf(2500L));
 
         // Act & Assert
         mockMvc.perform(get("/estadia/total/1")
@@ -298,7 +298,7 @@ class EstadiaResourceTest {
         NotaFiscalDTO notaFiscalCompleta = new NotaFiscalDTO();
         notaFiscalCompleta.setCliente(clienteDTO);
         notaFiscalCompleta.setEstadias(Arrays.asList(estadiaDTO, estadia2));
-        notaFiscalCompleta.setTotal(900L);
+        notaFiscalCompleta.setTotal(BigDecimal.valueOf(900L));
 
         when(estadiaService.emitirNotaFiscal(1L)).thenReturn(notaFiscalCompleta);
 

@@ -5,11 +5,13 @@ import hotelbao.backend.dto.NotaFiscalDTO;
 import hotelbao.backend.dto.RoleDTO;
 import hotelbao.backend.dto.UsuarioDTO;
 import hotelbao.backend.entity.Estadia;
+import hotelbao.backend.entity.Quarto;
 import hotelbao.backend.entity.Role;
 import hotelbao.backend.entity.Usuario;
 import hotelbao.backend.exceptions.DatabaseException;
 import hotelbao.backend.exceptions.ResourceNotFound;
 import hotelbao.backend.repository.EstadiaRepository;
+import hotelbao.backend.repository.QuartoRepository;
 import hotelbao.backend.repository.UsuarioRepository;
 import hotelbao.backend.resource.EstadiaResource;
 import hotelbao.backend.resource.UsuarioResource;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +39,12 @@ public class EstadiaService {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private QuartoRepository quartoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Transactional(readOnly = true)
     public Page<EstadiaDTO> findAll (Pageable pageable) {
@@ -60,6 +70,7 @@ public class EstadiaService {
     @Transactional
     public EstadiaDTO insert (EstadiaDTO dto) {
         Estadia entity = new Estadia();
+
         this.copiarDTOParaEntidade(dto, entity);
         Estadia nova = estadiaRepository.save(entity);
         return new EstadiaDTO(nova)
@@ -100,8 +111,8 @@ public class EstadiaService {
     }
 
     @Transactional(readOnly = true)
-    public Long totalEstadiasCliente (Long id) {
-        Optional<Long> opt = estadiaRepository.findSumOfAllClientStays(id);
+    public BigDecimal totalEstadiasCliente (Long id) {
+        Optional<BigDecimal> opt = estadiaRepository.findSumOfAllClientStays(id);
         return opt.orElseThrow(() -> new ResourceNotFound("Não há estadias"));
     }
 
@@ -138,19 +149,27 @@ public class EstadiaService {
     }
 
     @Transactional(readOnly = true)
+    public Boolean estadiaExisteEmDadaData (LocalDate data, Long quarto_id) {
+        return estadiaRepository.existsStayInGivenDate(data, quarto_id);
+    }
+
+    @Transactional(readOnly = true)
     public NotaFiscalDTO emitirNotaFiscal (Long id) {
         List<EstadiaDTO> estadias = this.findByClienteId(id);
         UsuarioDTO cliente = usuarioService.findById(id);
-        Long total = this.totalEstadiasCliente(id);
+        BigDecimal total = this.totalEstadiasCliente(id);
 
         return new NotaFiscalDTO(cliente, estadias, total);
     }
 
     private void copiarDTOParaEntidade (EstadiaDTO dto, Estadia entity) {
-        entity.setId(dto.getId());
+
+        Usuario cliente = usuarioRepository.findById(dto.getCliente().getId()).orElseThrow(()-> new ResourceNotFound("Usuário não encontrado."));
+        Quarto quarto = quartoRepository.findById(dto.getQuarto().getId()).orElseThrow(()-> new ResourceNotFound("Quarto não encontrado."));
+
         entity.setDataEntrada(dto.getDataEntrada());
         entity.setDataSaida(dto.getDataSaida());
-        entity.setCliente(entity.getCliente());
-        entity.setQuarto(entity.getQuarto());
+        entity.setCliente(cliente);
+        entity.setQuarto(quarto);
     }
 }

@@ -1,10 +1,13 @@
 package hotelbao.backend.repository;
 
 import hotelbao.backend.entity.Estadia;
+import hotelbao.backend.entity.Quarto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +41,14 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Long> {
         INNER JOIN quarto q ON e.quarto_id = q.id
         WHERE e.cliente_id = :id;
     """)
-    Optional<Long> findSumOfAllClientStays (Long id); /* ID do cliente */
+    Optional<BigDecimal> findSumOfAllClientStays (Long id); /* ID do cliente */
+
+    @Query(nativeQuery = true, value = """
+        SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END
+        FROM estadia 
+        WHERE estadia.data_entrada = :dataEntrada AND estadia.quarto_id = :quarto_id
+    """)
+    Boolean existsStayInGivenDate(LocalDate dataEntrada, Long quarto_id);
 
     List<Estadia> findByUsuarioId (Long id);
 }

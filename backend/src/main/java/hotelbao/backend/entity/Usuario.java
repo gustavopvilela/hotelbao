@@ -1,5 +1,6 @@
 package hotelbao.backend.entity;
 
+import hotelbao.backend.dto.UsuarioDTO;
 import jakarta.persistence.*;
 
 import java.util.Collection;

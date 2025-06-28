@@ -1,9 +1,7 @@
 package hotelbao.backend.dto;
 
 import hotelbao.backend.entity.Estadia;
-import hotelbao.backend.entity.Quarto;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -64,11 +62,11 @@ public class EstadiaDTO extends RepresentationModel<EstadiaDTO> {
         this.dataSaida = dataSaida;
     }
 
-    public UsuarioDTO getCliente() {
+    public UsuarioDTO getUsuario() {
         return usuario;
     }
 
-    public void setCliente(UsuarioDTO usuario) {
+    public void setUsuario(UsuarioDTO usuario) {
         this.usuario = usuario;
     }
 

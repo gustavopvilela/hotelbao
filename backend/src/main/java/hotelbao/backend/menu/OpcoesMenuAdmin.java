@@ -146,15 +146,13 @@ public class OpcoesMenuAdmin {
         }
     }
 
-    public void listarTodosQuartos(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
+    public void listarTodosQuartos(Scanner scanner, String urlBase, RestTemplate restTemplate) {
         int page = 0, size = 50;
         List<QuartoDTO> todosQuartos = new ArrayList<>();
         boolean temMaisPaginas = true;
 
         try {
-            /* Colocando o bearer token na requisição */
             HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(jwtToken);
             HttpEntity<String> requisicao = new HttpEntity<>(headers);
 
             System.out.println("================================");
@@ -334,7 +332,7 @@ public class OpcoesMenuAdmin {
                 todasEstadias.forEach(estadia -> {
                     System.out.printf(
                             "%-20s %-40s %-15s %-15s%n",
-                            estadia.getCliente().getNome(),
+                            estadia.getUsuario().getNome(),
                             estadia.getQuarto().getDescricao(),
                             estadia.getDataEntrada().format(formatter),
                             estadia.getDataSaida().format(formatter)
@@ -872,7 +870,7 @@ public class OpcoesMenuAdmin {
                 );
 
                 if (resposta.getStatusCode() == HttpStatus.OK) {
-                    if (resposta.getBody() == true) {
+                    if (Boolean.TRUE.equals(resposta.getBody())) {
                         System.out.println("A data" + entrada + " no quarto " + idQuarto + "não está disponível para reservas.");
                         System.out.println("Deseja escolher uma nova data? (S/N): ");
                         String escolha = scanner.nextLine();
@@ -1005,7 +1003,7 @@ public class OpcoesMenuAdmin {
         System.out.println("---------------------------------------------------------------------------------------");
         System.out.printf(
                 "%-20s %-40s %-15s %-15s%n",
-                estadia.getCliente().getNome(),
+                estadia.getUsuario().getNome(),
                 estadia.getQuarto().getDescricao(),
                 estadia.getDataEntrada().format(formatter),
                 estadia.getDataSaida().format(formatter)

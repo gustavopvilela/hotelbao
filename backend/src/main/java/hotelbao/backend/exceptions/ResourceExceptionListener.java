@@ -71,4 +71,19 @@ public class ResourceExceptionListener {
 
         return ResponseEntity.status(status).body(error);
     }
+
+    @ExceptionHandler(StayException.class)
+    public ResponseEntity<StandardError> stayException(StayException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        StandardError error = new StandardError();
+        error.setStatus(status.value());
+        error.setStatus(status.value());
+        error.setMessage(ex.getMessage());
+        error.setError("Stay error.");
+        error.setTimestamp(Instant.now());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(status).body(error);
+    }
 }

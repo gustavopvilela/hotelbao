@@ -1,17 +1,13 @@
 package hotelbao.backend.menu;
 
 import hotelbao.backend.dto.*;
-import hotelbao.backend.entity.Estadia;
-import hotelbao.backend.entity.Quarto;
 import hotelbao.backend.service.EstadiaService;
-import org.apache.coyote.Request;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import hotelbao.backend.menu.OpcoesMenuAdmin.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -115,11 +111,11 @@ public class OpcoesMenuCliente {
         }
         EstadiaDTO novaEstadia = new EstadiaDTO();
 
-        novaEstadia.setDataEntrada(data);
         assert data != null;
+        novaEstadia.setDataEntrada(data);
         novaEstadia.setDataSaida(data.plusDays(1));
         novaEstadia.setQuarto(q);
-        novaEstadia.setCliente(c);
+        novaEstadia.setUsuario(c);
 
         try {
             HttpHeaders headers = new HttpHeaders();

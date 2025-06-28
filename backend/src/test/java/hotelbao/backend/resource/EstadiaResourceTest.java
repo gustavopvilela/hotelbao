@@ -84,7 +84,7 @@ class EstadiaResourceTest {
         estadiaDTO.setId(1L);
         estadiaDTO.setDataEntrada(LocalDate.of(2025, 7, 1));
         estadiaDTO.setDataSaida(LocalDate.of(2025, 7, 5));
-        estadiaDTO.setCliente(clienteDTO);
+        estadiaDTO.setUsuario(clienteDTO);
         estadiaDTO.setQuarto(quartoDTO);
 
         // Setup Nota Fiscal
@@ -131,14 +131,14 @@ class EstadiaResourceTest {
         EstadiaDTO estadiaInput = new EstadiaDTO();
         estadiaInput.setDataEntrada(LocalDate.of(2025, 8, 1));
         estadiaInput.setDataSaida(LocalDate.of(2025, 8, 3));
-        estadiaInput.setCliente(clienteDTO);
+        estadiaInput.setUsuario(clienteDTO);
         estadiaInput.setQuarto(quartoDTO);
 
         EstadiaDTO estadiaOutput = new EstadiaDTO();
         estadiaOutput.setId(2L);
         estadiaOutput.setDataEntrada(LocalDate.of(2025, 8, 1));
         estadiaOutput.setDataSaida(LocalDate.of(2025, 8, 3));
-        estadiaOutput.setCliente(clienteDTO);
+        estadiaOutput.setUsuario(clienteDTO);
         estadiaOutput.setQuarto(quartoDTO);
 
         when(estadiaService.insert(any(EstadiaDTO.class))).thenReturn(estadiaOutput);
@@ -161,14 +161,14 @@ class EstadiaResourceTest {
         EstadiaDTO estadiaInput = new EstadiaDTO();
         estadiaInput.setDataEntrada(LocalDate.of(2025, 7, 2));
         estadiaInput.setDataSaida(LocalDate.of(2025, 7, 6));
-        estadiaInput.setCliente(clienteDTO);
+        estadiaInput.setUsuario(clienteDTO);
         estadiaInput.setQuarto(quartoDTO);
 
         EstadiaDTO estadiaOutput = new EstadiaDTO();
         estadiaOutput.setId(1L);
         estadiaOutput.setDataEntrada(LocalDate.of(2025, 7, 2));
         estadiaOutput.setDataSaida(LocalDate.of(2025, 7, 6));
-        estadiaOutput.setCliente(clienteDTO);
+        estadiaOutput.setUsuario(clienteDTO);
         estadiaOutput.setQuarto(quartoDTO);
 
         when(estadiaService.update(eq(1L), any(EstadiaDTO.class))).thenReturn(estadiaOutput);
@@ -200,7 +200,7 @@ class EstadiaResourceTest {
         estadia2.setId(2L);
         estadia2.setDataEntrada(LocalDate.of(2025, 8, 1));
         estadia2.setDataSaida(LocalDate.of(2025, 8, 3));
-        estadia2.setCliente(clienteDTO);
+        estadia2.setUsuario(clienteDTO);
         estadia2.setQuarto(quartoDTO);
 
         List<EstadiaDTO> estadias = Arrays.asList(estadiaDTO, estadia2);
@@ -225,7 +225,7 @@ class EstadiaResourceTest {
         estadiaMaior.setId(3L);
         estadiaMaior.setDataEntrada(LocalDate.of(2025, 9, 1));
         estadiaMaior.setDataSaida(LocalDate.of(2025, 9, 8));
-        estadiaMaior.setCliente(clienteDTO);
+        estadiaMaior.setUsuario(clienteDTO);
 
         QuartoDTO quartoLuxo = new QuartoDTO();
         quartoLuxo.setId(2L);
@@ -252,7 +252,7 @@ class EstadiaResourceTest {
         estadiaMenor.setId(4L);
         estadiaMenor.setDataEntrada(LocalDate.of(2025, 6, 15));
         estadiaMenor.setDataSaida(LocalDate.of(2025, 6, 16));
-        estadiaMenor.setCliente(clienteDTO);
+        estadiaMenor.setUsuario(clienteDTO);
 
         QuartoDTO quartoSimples = new QuartoDTO();
         quartoSimples.setId(3L);
@@ -292,7 +292,7 @@ class EstadiaResourceTest {
         estadia2.setId(2L);
         estadia2.setDataEntrada(LocalDate.of(2025, 8, 1));
         estadia2.setDataSaida(LocalDate.of(2025, 8, 3));
-        estadia2.setCliente(clienteDTO);
+        estadia2.setUsuario(clienteDTO);
         estadia2.setQuarto(quartoDTO);
 
         NotaFiscalDTO notaFiscalCompleta = new NotaFiscalDTO();

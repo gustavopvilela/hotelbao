@@ -91,7 +91,7 @@ public class BackendApplication {
 
 					switch (opcao) {
 						case 1 -> {
-							// TODO: listar quartos
+							menuAdmin.listarTodosQuartos(scanner, URL_BASE, restTemplate);
 						}
 						case 2 -> menuLogin();
 						case 3 -> {
@@ -240,7 +240,7 @@ public class BackendApplication {
 							pausar();
 						}
 						case 5 -> { /* Listar todos os quartos */
-							menuAdmin.listarTodosQuartos(scanner, jwtToken, URL_BASE, restTemplate);
+							menuAdmin.listarTodosQuartos(scanner, URL_BASE, restTemplate);
 							pausar();
 						}
 						case 6 -> { /* Listar todas as estadias */

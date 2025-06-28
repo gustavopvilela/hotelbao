@@ -1,11 +1,8 @@
 package hotelbao.backend.menu;
 
 import hotelbao.backend.dto.*;
-import hotelbao.backend.service.EstadiaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 

@@ -30,18 +30,11 @@ import java.util.*;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-@Component
 public class OpcoesMenuAdmin {
-    private final RoleRepository roleRepository;
     private final String USUARIO_URL_PATH = "/usuario";
     private final String ESTADIA_URL_PATH = "/estadia";
-    private final QuartoService quartoService;
 
-    @Autowired
-    public OpcoesMenuAdmin(RoleRepository roleRepository, QuartoService quartoService) {
-        this.roleRepository = roleRepository;
-        this.quartoService = quartoService;
-    }
+    public OpcoesMenuAdmin () {}
 
     public void listarTodosClientes(Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         int page = 0, size = 50;
@@ -390,7 +383,7 @@ public class OpcoesMenuAdmin {
 
     public void inserirCliente (Scanner scanner, String jwtToken, String urlBase, RestTemplate restTemplate) {
         UsuarioInsertDTO novoCliente = new UsuarioInsertDTO();
-        Role role = roleRepository.findByAuthority("ROLE_CLIENTE");
+        Role role = new Role(2L, "ROLE_CLIENTE");
         Set<RoleDTO> roles = new HashSet<>();
         roles.add(new RoleDTO(role));
 

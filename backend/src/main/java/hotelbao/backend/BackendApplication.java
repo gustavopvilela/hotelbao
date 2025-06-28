@@ -42,10 +42,4 @@ public class BackendApplication {
 	public Scanner scanner () {
 		return new Scanner(System.in);
 	}
-
-	@Bean
-	@Lazy
-	public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
-		return new HandlerMappingIntrospector();
-	}
 }

@@ -6,31 +6,24 @@ import hotelbao.backend.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Scanner;
 
-@Component
 public class AppRunner {
     private final RestTemplate restTemplate;
     private final Scanner scanner;
     private final OpcoesMenuAdmin menuAdmin;
     private final OpcoesMenuCliente menuCliente;
-    
-    @Value("${security.client-id}")
-    private String clientId;
-    
-    @Value("${security.client-secret}")
-    private String clientSecret;
+    private final String clientId = "myclientid";
+    private final String clientSecret = "myclientsecret";
     
     private static final String URL_BASE = "http://localhost:8080";
     private UsuarioDTO usuarioLogado = new UsuarioDTO();
     private String jwtToken;
     
-    @Autowired
     public AppRunner (RestTemplate restTemplate, Scanner scanner, OpcoesMenuAdmin menuAdmin, OpcoesMenuCliente menuCliente) {
         this.restTemplate = restTemplate;
         this.scanner = scanner;

@@ -19,11 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 
-@Component
 public class OpcoesMenuCliente {
-    @Autowired
-    private OpcoesMenuAdmin menuAdmin;
-    private EstadiaService estadiaService;
+    private OpcoesMenuAdmin menuAdmin = new OpcoesMenuAdmin();
 
     private final String ESTADIA_URL_PATH = "/estadia";
 

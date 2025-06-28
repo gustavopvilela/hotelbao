@@ -5,21 +5,22 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import hotelbao.backend.config.AuthorizationServerConfig;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Scanner;
 
 public class CLI {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = new SpringApplicationBuilder(BackendApplication.class)
-                .web(WebApplicationType.NONE) // Não inicia o servidor web, aqui roda só o menu
-                .bannerMode(Banner.Mode.OFF) // Tira aquele banner enorme do Spring
-                .run(args);
+        RestTemplate restTemplate = new RestTemplate();
+        Scanner scanner = new Scanner(System.in);
+        OpcoesMenuAdmin menuAdmin = new OpcoesMenuAdmin();
+        OpcoesMenuCliente menuCliente = new OpcoesMenuCliente();
 
-        // Pega o componente AppRunner
-        AppRunner appRunner = context.getBean(AppRunner.class);
+        AppRunner appRunner = new AppRunner(restTemplate, scanner, menuAdmin, menuCliente);
 
-        // Executa o menu principal
         appRunner.executarMenuPrincipal();
 
-        // Quando terminar, fecha o contexto fornecido pelo Spring
-        context.close();
+        System.out.println("\n\n\n==== SISTEMA ENCERRADO ====");
     }
 }

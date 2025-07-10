@@ -1,0 +1,926 @@
+{
+	"info": {
+		"_postman_id": "75e157f8-13d5-4a05-87ff-6518596c105f",
+		"name": "HotelBao",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43508162",
+		"_collection_link": "https://gustavo-5643737.postman.co/workspace/Gustavo's-Workspace~44417f0a-82e0-49ab-8e3c-29a2e6928ce0/collection/43508162-75e157f8-13d5-4a05-87ff-6518596c105f?action=share&source=collection_link&creator=43508162"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get all users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/usuario",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/usuario/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Fulano de tal\",\r\n    \"email\": \"gustavohp.vilela@gmail.com\",\r\n    \"senha\": \"jj\",\r\n    \"login\": \"gustavo\",\r\n    \"telefone\": \"37998765432\",\r\n    \"roles\": [\r\n        {\r\n            \"id\": 1,\r\n            \"authority\": \"ROLE_ADMIN\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/usuario",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Gustavo\",\r\n    \"email\": \"gustavohp.vilela@gmail.com\",\r\n    \"senha\": \"12345678\",\r\n    \"login\": \"gustavo\",\r\n    \"telefone\": \"37998765432\",\r\n    \"roles\": [\r\n        {\r\n            \"id\": 1,\r\n            \"authority\": \"ROLE_ADMIN\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/usuario/4",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/usuario/4",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by login",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/usuario/findByLogin/gustavo",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario",
+								"findByLogin",
+								"gustavo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Estadia",
+			"item": [
+				{
+					"name": "Total das estadias de um cliente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/total/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"total",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all estadias",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get one estadia",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by cliente id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/cliente/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"cliente",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get estadia de maior valor de um cliente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/maior/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"maior",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get estadia de menor valor de um cliente",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/menor/2",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"menor",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert estadia",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"dataEntrada\": \"2025-10-09\",\r\n    \"quarto\": {\r\n        \"id\": 2,\r\n        \"descricao\": \"Suíte executiva\",\r\n        \"valor\": 50.00,\r\n        \"imagemUrl\": \"executiva.jpg\"\r\n    },\r\n    \"usuario\": {\r\n        \"id\": 2,\r\n        \"nome\": \"Marcos\",\r\n        \"email\": \"marcos@gmail.com\",\r\n        \"login\": \"marcos\",\r\n        \"telefone\": \"37123456789\",\r\n        \"roles\": [\r\n            {\r\n                \"id\": 2,\r\n                \"authority\": \"ROLE_CLIENTE\"\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/estadia",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Nota fiscal",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/nota-fiscal/3",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"nota-fiscal",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update estadia",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"dataEntrada\": \"2029-05-03\",\r\n    \"quarto\": {\r\n        \"id\": 2,\r\n        \"descricao\": \"Suíte executiva\",\r\n        \"valor\": 50.00,\r\n        \"imagemUrl\": \"executiva.jpg\"\r\n    },\r\n    \"usuario\": {\r\n        \"id\": 2,\r\n        \"nome\": \"Marcos\",\r\n        \"email\": \"marcos@gmail.com\",\r\n        \"login\": \"marcos\",\r\n        \"telefone\": \"37123456789\",\r\n        \"roles\": [\r\n            {\r\n                \"id\": 2,\r\n                \"authority\": \"ROLE_CLIENTE\"\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/estadia/4",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete estadia",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Quarto reservado em dada data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/estadia/2025-06-01/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"estadia",
+								"2025-06-01",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Quarto",
+			"item": [
+				{
+					"name": "Get all rooms",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/quarto",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"quarto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get one room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/quarto/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"quarto",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Insert room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"descricao\": null,\r\n    \"valor\": -123.45,\r\n    \"imagemUrl\": \"https://i0.wp.com/theluxurytravelexpert.com/wp-content/uploads/2014/03/trump-hotel-chicago-illinois-usa.jpg?fit=970%2C546&ssl=1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/quarto",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"quarto"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"descricao\": \"Um grandessíssimo quarto\",\r\n    \"valor\": 222.99,\r\n    \"imagemUrl\": \"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTr49PytbAKZs_hrqEyDGcViUv_kvN4FQeMw&s\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/quarto/1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"quarto",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete room",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/quarto/16",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"quarto",
+								"16"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code >= 200 && pm.response.code < 300) {\r",
+									"    var json = JSON.parse(pm.response.text());\r",
+									"    postman.setEnvironmentVariable('token', json.access_token);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{client-id}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{client-secret}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/oauth2/token",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sign up",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Anna\",\r\n    \"email\": \"anna@anna.com\",\r\n    \"telefone\": \"37998765432\",\r\n    \"login\": \"anna\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/usuario/signup",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request new password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"gustavohp.vilela@gmail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/recover-token",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"recover-token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset password",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"35404de4-d7d0-41ee-b5a7-63ade23d69a9\",\r\n    \"newPassword\": \"87654321\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/auth/new-password",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"auth",
+								"new-password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Clientes",
+			"item": [
+				{
+					"name": "Get all clients",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/usuario/clientes",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"usuario",
+								"clientes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Database",
+			"item": [
+				{
+					"name": "Clear database",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/database/clear",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"database",
+								"clear"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

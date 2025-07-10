@@ -71,7 +71,7 @@ public class QuartoResource {
             }
     )
     @PreAuthorize(value = "hasAnyAuthority('ROLE_ADMIN')")
-    public ResponseEntity<QuartoDTO> insert(@Valid @RequestBody Quarto dto) {
+    public ResponseEntity<QuartoDTO> insert(@Valid @RequestBody QuartoDTO dto) {
         Quarto entity = new Quarto();
         entity.setDescricao(dto.getDescricao());
         entity.setValor(dto.getValor());

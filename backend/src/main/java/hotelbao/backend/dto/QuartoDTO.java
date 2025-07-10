@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public class QuartoDTO extends RepresentationModel<QuartoDTO> {
 
     private Long id;
+    @NotNull(message = "Insira a descrição")
     @NotBlank(message = "Insira a descrição do quarto.")
     private String descricao;
     @NotNull(message = "Inisira o valor da diária do quarto.")

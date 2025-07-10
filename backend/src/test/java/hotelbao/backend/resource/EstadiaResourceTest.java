@@ -106,7 +106,7 @@ class EstadiaResourceTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1L))
-                .andExpect(jsonPath("$.content[0].cliente.nome").value("João Silva"));
+                .andExpect(jsonPath("$.content[0].usuario.nome").value("João Silva"));
     }
 
     @Test
@@ -120,7 +120,7 @@ class EstadiaResourceTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.cliente.nome").value("João Silva"))
+                .andExpect(jsonPath("$.usuario.nome").value("João Silva"))
                 .andExpect(jsonPath("$.quarto.descricao").value("Quarto Standard"));
     }
 
@@ -151,7 +151,7 @@ class EstadiaResourceTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.id").value(2L))
-                .andExpect(jsonPath("$.cliente.email").value("joao.silva@email.com"));
+                .andExpect(jsonPath("$.usuario.email").value("joao.silva@email.com"));
     }
 
     @Test
@@ -180,7 +180,7 @@ class EstadiaResourceTest {
                         .content(objectMapper.writeValueAsString(estadiaInput)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.cliente.login").value("joao.silva"));
+                .andExpect(jsonPath("$.usuario.login").value("joao.silva"));
     }
 
     @Test
@@ -213,7 +213,7 @@ class EstadiaResourceTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].cliente.telefone").value("(11) 99999-9999"))
+                .andExpect(jsonPath("$[0].usuario.telefone").value("(11) 99999-9999"))
                 .andExpect(jsonPath("$[1].id").value(2L));
     }
 

@@ -169,7 +169,7 @@ class QuartoResourceTest {
     void insertShouldReturnErrorWhenInvalidData() throws Exception {
         Quarto quartoInvalido = new Quarto();
         quartoInvalido.setDescricao(""); // Descrição vazia
-        quartoInvalido.setValor(new BigDecimal("-50.00")); // Valor negativo
+        quartoInvalido.setValor(BigDecimal.valueOf(-50.00)); // Valor negativo
         quartoInvalido.setImagemUrl("url-invalida"); // URL inválida
 
         String quartoJson = objectMapper.writeValueAsString(quartoInvalido);
@@ -181,9 +181,9 @@ class QuartoResourceTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(quartoJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isUnprocessableEntity());
 
-        verify(quartoService, times(1)).save(any(Quarto.class));
+        verify(quartoService, times(0)).save(any(Quarto.class));
     }
 
 
